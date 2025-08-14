@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Information Form - Auto Azure Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .login-prompt h2 {
+            color: #0078d4;
+            margin-bottom: 20px;
+        }
+
+        .login-prompt p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .user-info {
+            background: #f3f2f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #0078d4;
+        }
+
+        .user-info h3 {
+            margin: 0 0 10px 0;
+            color: #323130;
+            font-size: 18px;
+        }
+
+        .user-details {
+            color: #605e5c;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 16px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+        }
+
+        .readonly-field {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        button {
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 120, 212, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        button:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+        }
+
+        .retry-btn {
+            background: #6c757d;
+            margin-top: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #0078d4;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #0078d4;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .auto-fill-indicator {
+            font-size: 12px;
+            color: #28a745;
+            margin-top: 5px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+        }
+
+        .auto-fill-indicator::before {
+            content: '✓';
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .auth-status {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sign-out-btn {
+            background: #6c757d;
+            font-size: 14px;
+            padding: 8px 16px;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Manager Information Form</h1>
+        
+        <!-- Login Prompt (shown initially) -->
+        <div id="loginPrompt" class="login-prompt">
+            <h2>🔐 Authentication Required</h2>
+            <p>Please sign in with your Microsoft account to auto-fill your manager information.</p>
+            <button onclick="promptLogin()" id="loginBtn" disabled>Initializing...</button>
+            <div id="authStatus" style="margin-top: 20px; color: #666; font-size: 14px;">
+                Initializing authentication system...
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading" style="display: none;">
+            Authenticating and loading your information...
+        </div>
+
+        <!-- Error Display -->
+        <div id="errorMessage" class="error" style="display: none;">
+            <div id="errorText"></div>
+            <button onclick="promptLogin()" class="retry-btn">Try Again</button>
+        </div>
+
+        <!-- Success State with Form -->
+        <div id="formSection" style="display: none;">
+            <div class="auth-status">
+                <span>✅ Successfully authenticated</span>
+                <button onclick="signOut()" class="sign-out-btn">Sign Out</button>
+                <div style="clear: both;"></div>
+            </div>
+
+            <div id="userInfo" class="user-info">
+                <h3>Current User</h3>
+                <div class="user-details">
+                    <div><strong>Name:</strong> <span id="userName">Loading...</span></div>
+                    <div><strong>Email:</strong> <span id="userEmail">Loading...</span></div>
+                    <div><strong>Department:</strong> <span id="userDepartment">Loading...</span></div>
+                    <div><strong>Job Title:</strong> <span id="userJobTitle">Loading...</span></div>
+                </div>
+            </div>
+
+            <form id="managerForm">
+                <div class="form-group">
+                    <label for="manager">Manager Name:</label>
+                    <input type="text" id="manager" name="manager" class="readonly-field" readonly 
+                           placeholder="Loading manager information...">
+                    <div id="managerAutoFill" class="auto-fill-indicator" style="display: none;">
+                        Auto-filled from Microsoft Graph API
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="managerEmail">Manager Email:</label>
+                    <input type="text" id="managerEmail" name="managerEmail" class="readonly-field" readonly 
+                           placeholder="Loading...">
+                </div>
+
+                <div class="form-group">
+                    <label for="managerTitle">Manager Job Title:</label>
+                    <input type="text" id="managerTitle" name="managerTitle" class="readonly-field" readonly 
+                           placeholder="Loading...">
+                </div>
+
+                <div class="form-group">
+                    <label for="project">Project Name: <span style="color: red;">*</span></label>
+                    <input type="text" id="project" name="project" placeholder="Enter project name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="requestType">Request Type:</label>
+                    <select id="requestType" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 16px;">
+                        <option value="">Select request type</option>
+                        <option value="approval">Manager Approval</option>
+                        <option value="review">Performance Review</option>
+                        <option value="feedback">Feedback Request</option>
+                        <option value="meeting">Meeting Request</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" rows="4" 
+                              placeholder="Enter description or details..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let msalInstance = null;
+        let currentAccount = null;
+        let accessToken = null;
+        let isInitialized = false;
+        let msalLoaded = false;
+
+        // MSAL Configuration - Using your Azure AD Client ID
+        const msalConfig = {
+            auth: {
+                clientId: "e41e5e58-9475-4fbe-8934-fb10ddf4bd31", // Your Azure AD App Client ID
+                authority: "https://login.microsoftonline.com/common",
+                redirectUri: window.location.origin
+            },
+            cache: {
+                cacheLocation: "sessionStorage",
+                storeAuthStateInCookie: false
+            }
+        };
+
+        // Login request configuration
+        const loginRequest = {
+            scopes: ["User.Read", "User.Read.All"],
+            prompt: "select_account"
+        };
+
+        // Token request for Graph API
+        const tokenRequest = {
+            scopes: ["User.Read", "User.Read.All"],
+            account: null
+        };
+
+        // Handle MSAL library loading success
+        function handleMSALLoaded() {
+            console.log("MSAL library loaded successfully");
+            msalLoaded = true;
+            initializeApp();
+        }
+
+        // Handle MSAL library loading error
+        function handleMSALLoadError() {
+            console.error("Failed to load MSAL library from all sources");
+            showError(`
+                <strong>Authentication library failed to load.</strong><br>
+                This could be due to:<br>
+                • Network connectivity issues<br>
+                • Firewall/proxy blocking CDN access<br>
+                • Browser security settings<br><br>
+                <strong>Solutions:</strong><br>
+                1. Check your internet connection<br>
+                2. Try refreshing the page<br>
+                3. Disable ad blockers temporarily<br>
+                4. Try a different browser<br>
+            `);
+            
+            // Show retry button
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Refresh Page';
+            loginBtn.onclick = () => location.reload();
+        }
+
+        // Fallback MSAL loading function
+        function loadFallbackMSAL() {
+            console.warn("Primary MSAL CDN failed, trying fallback...");
+            const fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/msal/2.38.3/msal-browser.min.js';
+            fallbackScript.onload = handleMSALLoaded;
+            fallbackScript.onerror = handleMSALLoadError;
+            document.head.appendChild(fallbackScript);
+        }
+
+        // Initialize the app
+        async function initializeApp() {
+            // Check if MSAL library is available
+            if (typeof msal === 'undefined') {
+                console.error("MSAL library not available");
+                showError("Authentication library failed to load. Please refresh the page.");
+                return;
+            }
+
+            try {
+                // Create MSAL instance
+                msalInstance = new msal.PublicClientApplication(msalConfig);
+                
+                // Initialize MSAL
+                await msalInstance.initialize();
+                isInitialized = true;
+                
+                console.log("MSAL initialized successfully");
+                
+                // Enable the login button
+                const loginBtn = document.getElementById('loginBtn');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign in with Microsoft';
+                document.getElementById('authStatus').textContent = 'Click the button above to authenticate with your Microsoft account';
+                
+                // Check if user is already signed in
+                const accounts = msalInstance.getAllAccounts();
+                if (accounts.length > 0) {
+                    console.log("Found existing account, attempting auto-login");
+                    currentAccount = accounts[0];
+                    await handleAuthenticated();
+                }
+            } catch (error) {
+                console.error("Initialization error:", error);
+                showError("Failed to initialize authentication: " + error.message + ". Please check that you've entered a valid Client ID.");
+                
+                // Enable retry
+                const loginBtn = document.getElementById('loginBtn');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Retry Initialization';
+                loginBtn.onclick = () => initializeApp();
+            }
+        }
+
+        // Prompt login popup
+        async function promptLogin() {
+            // Check if MSAL is initialized
+            if (!isInitialized || !msalInstance) {
+                showError("Authentication system is not ready. Please wait and try again.");
+                return;
+            }
+
+            showLoading();
+            
+            try {
+                const loginResponse = await msalInstance.loginPopup(loginRequest);
+                currentAccount = loginResponse.account;
+                await handleAuthenticated();
+            } catch (error) {
+                console.error("Login error:", error);
+                if (error.errorCode !== "user_cancelled") {
+                    showError("Login failed: " + (error.errorMessage || error.message || "Unknown error occurred"));
+                } else {
+                    showLoginPrompt();
+                }
+            }
+        }
+
+        // Handle successful authentication
+        async function handleAuthenticated() {
+            try {
+                // Get access token
+                tokenRequest.account = currentAccount;
+                const tokenResponse = await msalInstance.acquireTokenSilent(tokenRequest);
+                accessToken = tokenResponse.accessToken;
+
+                // Load user data
+                await Promise.all([
+                    loadUserInfo(),
+                    loadManagerInfo()
+                ]);
+
+                showForm();
+            } catch (error) {
+                console.error("Token acquisition error:", error);
+                
+                if (error.errorCode === "interaction_required") {
+                    try {
+                        const tokenResponse = await msalInstance.acquireTokenPopup(tokenRequest);
+                        accessToken = tokenResponse.accessToken;
+                        await Promise.all([
+                            loadUserInfo(),
+                            loadManagerInfo()
+                        ]);
+                        showForm();
+                    } catch (popupError) {
+                        showError("Failed to get access token: " + popupError.message);
+                    }
+                } else {
+                    showError("Authentication error: " + error.message);
+                }
+            }
+        }
+
+        // Load current user information
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('https://graph.microsoft.com/v1.0/me', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const user = await response.json();
+                
+                document.getElementById('userName').textContent = user.displayName || 'N/A';
+                document.getElementById('userEmail').textContent = user.mail || user.userPrincipalName || 'N/A';
+                document.getElementById('userDepartment').textContent = user.department || 'N/A';
+                document.getElementById('userJobTitle').textContent = user.jobTitle || 'N/A';
+                
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                throw new Error('Failed to load user information: ' + error.message);
+            }
+        }
+
+        // Load manager information
+        async function loadManagerInfo() {
+            try {
+                const response = await fetch('https://graph.microsoft.com/v1.0/me/manager', {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const manager = await response.json();
+                    
+                    document.getElementById('manager').value = manager.displayName || 'Manager name not available';
+                    document.getElementById('managerEmail').value = manager.mail || manager.userPrincipalName || 'Email not available';
+                    document.getElementById('managerTitle').value = manager.jobTitle || 'Title not available';
+                    document.getElementById('managerAutoFill').style.display = 'block';
+                    
+                    // Visual feedback animation
+                    animateAutoFill(['manager', 'managerEmail', 'managerTitle']);
+                    
+                } else if (response.status === 404) {
+                    document.getElementById('manager').value = 'No manager assigned';
+                    document.getElementById('managerEmail').value = 'N/A';
+                    document.getElementById('managerTitle').value = 'N/A';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                console.error('Error loading manager info:', error);
+                document.getElementById('manager').value = 'Error loading manager info';
+                document.getElementById('managerEmail').value = 'Error';
+                document.getElementById('managerTitle').value = 'Error';
+            }
+        }
+
+        // Animate auto-filled fields
+        function animateAutoFill(fieldIds) {
+            fieldIds.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                field.style.backgroundColor = '#e8f5e8';
+                field.style.transition = 'background-color 0.3s ease';
+                
+                setTimeout(() => {
+                    field.style.backgroundColor = '#f8f9fa';
+                }, 2000);
+            });
+        }
+
+        // Sign out
+        async function signOut() {
+            if (!isInitialized || !msalInstance) {
+                console.error("MSAL not initialized");
+                return;
+            }
+
+            try {
+                await msalInstance.logoutPopup();
+                currentAccount = null;
+                accessToken = null;
+                showLoginPrompt();
+            } catch (error) {
+                console.error("Logout error:", error);
+                // Even if logout fails, clear local state
+                currentAccount = null;
+                accessToken = null;
+                showLoginPrompt();
+            }
+        }
+
+        // UI State Management
+        function showLoginPrompt() {
+            document.getElementById('loginPrompt').style.display = 'block';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('formSection').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('formSection').style.display = 'none';
+        }
+
+        function showForm() {
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('formSection').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').innerHTML = message;
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('formSection').style.display = 'none';
+        }
+    </script>
+
+    <!-- Microsoft Authentication Library (MSAL) -->
+    <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js" 
+            onerror="loadFallbackMSAL()" 
+            onload="handleMSALLoaded()"></script>
+
+    <script>
+        // Form submission handler
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('managerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    // User information
+                    submittedBy: document.getElementById('userName').textContent,
+                    submittedByEmail: document.getElementById('userEmail').textContent,
+                    department: document.getElementById('userDepartment').textContent,
+                    
+                    // Manager information
+                    manager: document.getElementById('manager').value,
+                    managerEmail: document.getElementById('managerEmail').value,
+                    managerTitle: document.getElementById('managerTitle').value,
+                    
+                    // Form data
+                    project: document.getElementById('project').value,
+                    requestType: document.getElementById('requestType').value,
+                    description: document.getElementById('description').value,
+                    submittedAt: new Date().toISOString()
+                };
+                
+                // In a real application, send this to your backend
+                console.log('Form Data:', formData);
+                
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success';
+                successDiv.innerHTML = `
+                    <strong>✅ Form submitted successfully!</strong><br>
+                    Your request has been logged and will be processed.<br>
+                    <small>Form data has been logged to console for debugging.</small>
+                `;
+                
+                document.getElementById('formSection').insertBefore(successDiv, document.getElementById('managerForm'));
+                
+                // Reset editable fields only
+                document.getElementById('project').value = '';
+                document.getElementById('requestType').value = '';
+                document.getElementById('description').value = '';
+                
+                // Remove success message after 5 seconds
+                setTimeout(() => {
+                    if (successDiv.parentNode) {
+                        successDiv.parentNode.removeChild(successDiv);
+                    }
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
