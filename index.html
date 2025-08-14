@@ -3,47 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <title>MSAL Auth Test</title>
-  https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js
-</head>
-<body>
-  <h1>Microsoft Login Test</h1>
+  <script src="https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js"></scripticrosoft Login Test</h1>
   <button onclick="signIn()">Sign In</button>
   <button onclick="signOut()">Sign Out</button>
   <div id="output"></div>
 
   <script>
-    const msalConfig = {
-      auth: {
-        clientId: "8f3f4c99-7fc0-4dd7-8038-07a335b0d7ac",
-        authority: "https://login.microsoftonline.com/common",
-        redirectUri: "https://ytimshina.github.io/authtesthjks/"
-      }
-    };
+    // Ensure MSAL is available before using it
+    window.addEventListener('DOMContentLoaded', () => {
+      const msalConfig = {
+        auth: {
+          clientId: "8f3f4c99-7fc0-4dd7-8038-07a335b0d7ac",
+          authority: "https://login.microsoftonline.com/common",
+          redirectUri: "https://ytimshina.github.io/authtesthjks/"
+        }
+      };
 
-    const msalInstance = new msal.PublicClientApplication(msalConfig);
+      const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-    async function signIn() {
-      try {
-        const loginResponse = await msalInstance.loginPopup({
-          scopes: ["user.read"]
-        });
+      window.signIn = async function () {
+        try {
+          const loginResponse = await msalInstance.loginPopup({
+            scopes: ["user.read"]
+          });
 
-        const account = loginResponse.account;
-        document.getElementById("output").innerText = `Hello, ${account.username}`;
-      } catch (error) {
-        console.error(error);
-        document.getElementById("output").innerText = `Login failed: ${error.message}`;
-      }
-    }
+          const account = loginResponse.account;
+          document.getElementById("output").innerText = `Hello, ${account.username}`;
+        } catch (error) {
+          console.error(error);
+          document.getElementById("output").innerText = `Login failed: ${error.message}`;
+        }
+      };
 
-    function signOut() {
-      const account = msalInstance.getAllAccounts()[0];
-      if (account) {
-        msalInstance.logoutPopup({
-          account: account
-        });
-      }
-    }
+      window.signOut = function () {
+        const account = msalInstance.getAllAccounts()[0];
+        if (account) {
+          msalInstance.logoutPopup({
+            account: account
+          });
+        }
+      };
+    });
   </script>
 </body>
 </html>
