@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>MSAL Auth Test</title>
-  <script src="https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js"></scripticrosoft Login Test</h1>
+  <script src="https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js"></script>
+</head>
+<body>
+  <h1>Microsoft Login Test</h1>
   <button onclick="signIn()">Sign In</button>
   <button onclick="signOut()">Sign Out</button>
   <div id="output"></div>
-
   <script>
     // Ensure MSAL is available before using it
     window.addEventListener('DOMContentLoaded', () => {
@@ -18,15 +20,13 @@
           redirectUri: "https://ytimshina.github.io/authtesthjks/"
         }
       };
-
       const msalInstance = new msal.PublicClientApplication(msalConfig);
-
+      
       window.signIn = async function () {
         try {
           const loginResponse = await msalInstance.loginPopup({
             scopes: ["user.read"]
           });
-
           const account = loginResponse.account;
           document.getElementById("output").innerText = `Hello, ${account.username}`;
         } catch (error) {
@@ -34,7 +34,7 @@
           document.getElementById("output").innerText = `Login failed: ${error.message}`;
         }
       };
-
+      
       window.signOut = function () {
         const account = msalInstance.getAllAccounts()[0];
         if (account) {
