@@ -2,146 +2,362 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MSAL Auth Test - Fixed</title>
+  <title>MSAL Auth - Terminated Employee Form</title>
   <script src="https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .form-section {
+      display: none;
+      margin-top: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+    .required {
+      color: red;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 80px;
+      resize: vertical;
+    }
+    button {
+      background-color: #0078d4;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #106ebe;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .loading {
+      color: #666;
+      font-style: italic;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .success {
+      color: green;
+      margin-top: 10px;
+    }
+    h1, h2 {
+      color: #323130;
+    }
+    .confirmation {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      padding: 20px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Microsoft Login Test</h1>
-  <button onclick="signIn()">Sign In</button>
-  <button onclick="signOut()">Sign Out</button>
-  <button onclick="getManagerInfoWithConsent()" id="managerBtn" style="display:none;">Get Manager Info</button>
-  <div id="output"></div>
-  <div id="manager-info"></div>
+  <div class="container">
+    <h1>Microsoft Login - Terminated Employee Processing</h1>
+    
+    <div id="login-section">
+      <button onclick="signIn()">Sign In</button>
+      <button onclick="signOut()">Sign Out</button>
+      <div id="output"></div>
+      <div id="manager-info"></div>
+    </div>
+
+    <div id="terminated-form-section" class="form-section">
+      <h2>Terminated Employee Form</h2>
+      <p>Please complete the information below for the terminated employee:</p>
+      
+      <form id="terminatedEmployeeForm">
+        <div class="form-group">
+          <label for="employeeSelect">Select Employee to Terminate <span class="required">*</span></label>
+          <select id="employeeSelect" required>
+            <option value="">Loading employees...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="terminationDate">Employee Termination Date <span class="required">*</span></label>
+          <input type="date" id="terminationDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="hadEmail">Did the Terminated Employee have email? <span class="required">*</span></label>
+          <select id="hadEmail" required onchange="toggleEmailForwarding()">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="emailForwardingGroup" style="display: none;">
+          <label for="emailForwarding">If the Terminated Employee has email, should it be forwarded to someone? If yes, enter that employee's name <span class="required">*</span></label>
+          <input type="text" id="emailForwarding" placeholder="Enter employee name or leave blank if no forwarding needed">
+        </div>
+
+        <div class="form-group" id="emailAliasGroup" style="display: none;">
+          <label for="emailAliasRemoval">If the Terminated Employee has their email setup as a message alias, please indicate a date to remove</label>
+          <input type="date" id="emailAliasRemoval">
+        </div>
+
+        <div class="form-group">
+          <label for="deviceCollected">Was the KCC end user device collected? <span class="required">*</span></label>
+          <select id="deviceCollected" required onchange="toggleDeviceReason()">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="deviceReasonGroup" style="display: none;">
+          <label for="deviceReason">Why wasn't it collected? <span class="required">*</span></label>
+          <input type="text" id="deviceReason" placeholder="Explain why device was not collected">
+        </div>
+
+        <div class="form-group">
+          <label for="phoneTransfer">Did the Terminated Employee have a company phone number they would like to transfer to a new carrier? <span class="required">*</span></label>
+          <select id="phoneTransfer" required>
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>*Phone stipends are automatically removed when the Terminated Employee is removed from Paycor.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="kineticAccount">Does the Terminated Employee have a Kinetic account to disable? <span class="required">*</span></label>
+          <select id="kineticAccount" required>
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="ecxAccess">Does this Employee have access to ECx Manager to remove?</label>
+          <select id="ecxAccess">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="specialNotes">Offboarding Process Special Notes</label>
+          <textarea id="specialNotes" placeholder="Enter any special notes or instructions for the offboarding process"></textarea>
+        </div>
+
+        <button type="submit">Submit Termination Request</button>
+        <button type="button" onclick="resetForm()">Reset Form</button>
+      </form>
+
+      <div id="form-status"></div>
+    </div>
+
+    <div id="confirmation-section" style="display: none;">
+      <div class="confirmation">
+        <h2>✓ Termination Request Submitted Successfully</h2>
+        <p><strong>Thank you!</strong> Your termination request has been submitted and a ticket has been automatically generated for tracking.</p>
+        <p><strong>Employee:</strong> <span id="conf-employee"></span></p>
+        <p><strong>Termination Date:</strong> <span id="conf-date"></span></p>
+        <p><strong>Submitted by:</strong> <span id="conf-manager"></span></p>
+        <p>No further actions are needed at this time. The IT team will process this request and handle all necessary account deactivations and system access removals.</p>
+        <button onclick="submitAnother()">Submit Another Request</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let msalInstance;
+    let currentAccount;
+
     // Ensure MSAL is available before using it
     window.addEventListener('DOMContentLoaded', () => {
       const msalConfig = {
         auth: {
           clientId: "8f3f4c99-7fc0-4dd7-8038-07a335b0d7ac",
           authority: "https://login.microsoftonline.com/36ac54bd-4aec-4920-8680-85a46915b905",
-          
           redirectUri: "https://ytimshina.github.io/authtesthjks/"
         }
       };
-      const msalInstance = new msal.PublicClientApplication(msalConfig);
-      
-      window.signIn = async function () {
-        try {
-          const loginResponse = await msalInstance.loginPopup({
-            scopes: ["user.read"]
-          });
-          const account = loginResponse.account;
-          document.getElementById("output").innerText = `Hello, ${account.username}`;
-          
-          // Try to get manager info with basic permissions first
-          await tryManagerInfoBasic(account);
-          
-        } catch (error) {
-          console.error(error);
-          document.getElementById("output").innerText = `Login failed: ${error.message}`;
-        }
-      };
-      
-      window.tryManagerInfoBasic = async function(account) {
-        try {
-          // Try with basic user.read token first
-          const tokenResponse = await msalInstance.acquireTokenSilent({
-            scopes: ["user.read"],
-            account: account
-          });
-          
-          const response = await fetch('https://graph.microsoft.com/v1.0/me/manager', {
-            headers: {
-              'Authorization': `Bearer ${tokenResponse.accessToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            const manager = await response.json();
-            document.getElementById("manager-info").innerHTML = `
-              <h3>Manager Information:</h3>
-              <p><strong>Name:</strong> ${manager.displayName || 'N/A'}</p>
-              <p><strong>Email:</strong> ${manager.mail || manager.userPrincipalName || 'N/A'}</p>
-              <p><strong>Job Title:</strong> ${manager.jobTitle || 'N/A'}</p>
-              <p><strong>Department:</strong> ${manager.department || 'N/A'}</p>
-            `;
-            // Hide the manager button since we got the info
-            document.getElementById("managerBtn").style.display = 'none';
-          } else {
-            // If basic permissions don't work, show the button for elevated permissions
-            document.getElementById("managerBtn").style.display = 'inline-block';
-          }
-        } catch (error) {
-          // If basic approach fails, show the button for elevated permissions
-          document.getElementById("managerBtn").style.display = 'inline-block';
-        }
-      };
-      
-      window.getManagerInfoWithConsent = async function() {
-        try {
-          const account = msalInstance.getAllAccounts()[0];
-          
-          // Request additional permissions specifically for manager info
-          const tokenResponse = await msalInstance.acquireTokenPopup({
-            scopes: ["User.Read.All", "Directory.Read.All"],
-            account: account
-          });
-          
-          // Call Microsoft Graph API to get manager info
-          const response = await fetch('https://graph.microsoft.com/v1.0/me/manager', {
-            headers: {
-              'Authorization': `Bearer ${tokenResponse.accessToken}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            const manager = await response.json();
-            document.getElementById("manager-info").innerHTML = `
-              <h3>Manager Information:</h3>
-              <p><strong>Name:</strong> ${manager.displayName || 'N/A'}</p>
-              <p><strong>Email:</strong> ${manager.mail || manager.userPrincipalName || 'N/A'}</p>
-              <p><strong>Job Title:</strong> ${manager.jobTitle || 'N/A'}</p>
-              <p><strong>Department:</strong> ${manager.department || 'N/A'}</p>
-              <p><strong>Office Location:</strong> ${manager.officeLocation || 'N/A'}</p>
-              <p><strong>Phone:</strong> ${manager.businessPhones?.[0] || 'N/A'}</p>
-            `;
-          } else if (response.status === 404) {
-            document.getElementById("manager-info").innerHTML = `
-              <h3>Manager Information:</h3>
-              <p>No manager found in the directory.</p>
-            `;
-          } else {
-            const errorText = await response.text();
-            console.error('API Error:', response.status, errorText);
-            document.getElementById("manager-info").innerHTML = `
-              <h3>Manager Information:</h3>
-              <p>Error loading manager information: HTTP ${response.status}</p>
-            `;
-          }
-        } catch (error) {
-          console.error('Error fetching manager info:', error);
-          document.getElementById("manager-info").innerHTML = `
-            <h3>Manager Information:</h3>
-            <p>Error loading manager information: ${error.message}</p>
-          `;
-        }
-      };
-      
-      window.signOut = function () {
-        const account = msalInstance.getAllAccounts()[0];
-        if (account) {
-          msalInstance.logoutPopup({
-            account: account
-          });
-          // Clear displayed information and hide manager button
-          document.getElementById("output").innerText = '';
-          document.getElementById("manager-info").innerHTML = '';
-          document.getElementById("managerBtn").style.display = 'none';
-        }
-      };
+      msalInstance = new msal.PublicClientApplication(msalConfig);
     });
+      
+    window.signIn = async function () {
+      try {
+        const loginResponse = await msalInstance.loginPopup({
+          scopes: ["user.read", "user.read.all", "directory.read.all"]
+        });
+        currentAccount = loginResponse.account;
+        document.getElementById("output").innerText = `Hello, ${currentAccount.username}`;
+        
+        // Load the terminated employee form
+        await loadDirectReports();
+        
+      } catch (error) {
+        console.error(error);
+        document.getElementById("output").innerText = `Login failed: ${error.message}`;
+      }
+    };
+
+    async function loadDirectReports() {
+      try {
+        const tokenResponse = await msalInstance.acquireTokenSilent({
+          scopes: ["user.read.all", "directory.read.all"],
+          account: currentAccount
+        });
+
+        // Get manager's direct reports
+        const response = await fetch('https://graph.microsoft.com/v1.0/me/directReports', {
+          headers: {
+            'Authorization': `Bearer ${tokenResponse.accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const employees = data.value;
+          
+          const employeeSelect = document.getElementById('employeeSelect');
+          employeeSelect.innerHTML = '<option value="">Select an employee</option>';
+          
+          if (employees.length === 0) {
+            employeeSelect.innerHTML = '<option value="">No direct reports found</option>';
+          } else {
+            employees.forEach(employee => {
+              const option = document.createElement('option');
+              option.value = JSON.stringify({
+                id: employee.id,
+                displayName: employee.displayName,
+                mail: employee.mail || employee.userPrincipalName
+              });
+              option.textContent = `${employee.displayName} (${employee.mail || employee.userPrincipalName})`;
+              employeeSelect.appendChild(option);
+            });
+          }
+          
+          // Show the form
+          document.getElementById('terminated-form-section').style.display = 'block';
+          
+        } else {
+          throw new Error(`Failed to load direct reports: ${response.status}`);
+        }
+        
+      } catch (error) {
+        console.error('Error loading direct reports:', error);
+        document.getElementById('output').innerHTML += `<div class="error">Error loading employees: ${error.message}</div>`;
+      }
+    }
+
+    function toggleEmailForwarding() {
+      const hadEmail = document.getElementById('hadEmail').value;
+      const emailGroup = document.getElementById('emailForwardingGroup');
+      const aliasGroup = document.getElementById('emailAliasGroup');
+      
+      if (hadEmail === 'yes') {
+        emailGroup.style.display = 'block';
+        aliasGroup.style.display = 'block';
+        document.getElementById('emailForwarding').required = true;
+      } else {
+        emailGroup.style.display = 'none';
+        aliasGroup.style.display = 'none';
+        document.getElementById('emailForwarding').required = false;
+      }
+    }
+
+    function toggleDeviceReason() {
+      const deviceCollected = document.getElementById('deviceCollected').value;
+      const reasonGroup = document.getElementById('deviceReasonGroup');
+      
+      if (deviceCollected === 'no') {
+        reasonGroup.style.display = 'block';
+        document.getElementById('deviceReason').required = true;
+      } else {
+        reasonGroup.style.display = 'none';
+        document.getElementById('deviceReason').required = false;
+      }
+    }
+
+    document.getElementById('terminatedEmployeeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const employeeData = JSON.parse(document.getElementById('employeeSelect').value);
+      const terminationDate = document.getElementById('terminationDate').value;
+      
+      // Show confirmation
+      document.getElementById('conf-employee').textContent = employeeData.displayName;
+      document.getElementById('conf-date').textContent = new Date(terminationDate).toLocaleDateString();
+      document.getElementById('conf-manager').textContent = currentAccount.name || currentAccount.username;
+      
+      // Hide form and show confirmation
+      document.getElementById('terminated-form-section').style.display = 'none';
+      document.getElementById('confirmation-section').style.display = 'block';
+    });
+
+    function resetForm() {
+      document.getElementById('terminatedEmployeeForm').reset();
+      document.getElementById('emailForwardingGroup').style.display = 'none';
+      document.getElementById('emailAliasGroup').style.display = 'none';
+      document.getElementById('deviceReasonGroup').style.display = 'none';
+      document.getElementById('form-status').innerHTML = '';
+    }
+
+    function submitAnother() {
+      document.getElementById('confirmation-section').style.display = 'none';
+      document.getElementById('terminated-form-section').style.display = 'block';
+      resetForm();
+    }
+      
+    window.signOut = function () {
+      const account = msalInstance.getAllAccounts()[0];
+      if (account) {
+        msalInstance.logoutPopup({
+          account: account
+        });
+        // Clear displayed information
+        document.getElementById("output").innerText = '';
+        document.getElementById("manager-info").innerHTML = '';
+        document.getElementById('terminated-form-section').style.display = 'none';
+        document.getElementById('confirmation-section').style.display = 'none';
+        resetForm();
+      }
+    };
   </script>
 </body>
 </html>
