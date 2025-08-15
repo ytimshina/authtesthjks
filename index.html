@@ -9,6 +9,7 @@
   <h1>Microsoft Login Test</h1>
   <button onclick="signIn()">Sign In</button>
   <button onclick="signOut()">Sign Out</button>
+  <button onclick="getManagerInfoWithConsent()" id="managerBtn" style="display:none;">Get Manager Info</button>
   <div id="output"></div>
   <div id="manager-info"></div>
   <script>
@@ -27,23 +28,62 @@
       window.signIn = async function () {
         try {
           const loginResponse = await msalInstance.loginPopup({
-            scopes: ["user.read", "User.Read.All", "Directory.Read.All"]
+            scopes: ["user.read"]
           });
           const account = loginResponse.account;
           document.getElementById("output").innerText = `Hello, ${account.username}`;
           
-          // Get manager information using granted permissions
-          await getManagerInfo(account);
+          // Try to get manager info with basic permissions first
+          await tryManagerInfoBasic(account);
+          
         } catch (error) {
           console.error(error);
           document.getElementById("output").innerText = `Login failed: ${error.message}`;
         }
       };
       
-      window.getManagerInfo = async function(account) {
+      window.tryManagerInfoBasic = async function(account) {
         try {
-          // Get access token with the already-granted permissions
+          // Try with basic user.read token first
           const tokenResponse = await msalInstance.acquireTokenSilent({
+            scopes: ["user.read"],
+            account: account
+          });
+          
+          const response = await fetch('https://graph.microsoft.com/v1.0/me/manager', {
+            headers: {
+              'Authorization': `Bearer ${tokenResponse.accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const manager = await response.json();
+            document.getElementById("manager-info").innerHTML = `
+              <h3>Manager Information:</h3>
+              <p><strong>Name:</strong> ${manager.displayName || 'N/A'}</p>
+              <p><strong>Email:</strong> ${manager.mail || manager.userPrincipalName || 'N/A'}</p>
+              <p><strong>Job Title:</strong> ${manager.jobTitle || 'N/A'}</p>
+              <p><strong>Department:</strong> ${manager.department || 'N/A'}</p>
+            `;
+            // Hide the manager button since we got the info
+            document.getElementById("managerBtn").style.display = 'none';
+          } else {
+            // If basic permissions don't work, show the button for elevated permissions
+            document.getElementById("managerBtn").style.display = 'inline-block';
+          }
+        } catch (error) {
+          // If basic approach fails, show the button for elevated permissions
+          document.getElementById("managerBtn").style.display = 'inline-block';
+        }
+      };
+      
+      window.getManagerInfoWithConsent = async function() {
+        try {
+          const account = msalInstance.getAllAccounts()[0];
+          
+          // Request additional permissions specifically for manager info
+          const tokenResponse = await msalInstance.acquireTokenPopup({
             scopes: ["User.Read.All", "Directory.Read.All"],
             account: account
           });
@@ -95,9 +135,10 @@
           msalInstance.logoutPopup({
             account: account
           });
-          // Clear displayed information
+          // Clear displayed information and hide manager button
           document.getElementById("output").innerText = '';
           document.getElementById("manager-info").innerHTML = '';
+          document.getElementById("managerBtn").style.display = 'none';
         }
       };
     });
