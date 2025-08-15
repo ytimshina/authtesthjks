@@ -27,12 +27,12 @@
       window.signIn = async function () {
         try {
           const loginResponse = await msalInstance.loginPopup({
-            scopes: ["user.read"]
+            scopes: ["user.read", "User.Read.All", "Directory.Read.All"]
           });
           const account = loginResponse.account;
           document.getElementById("output").innerText = `Hello, ${account.username}`;
           
-          // Try to get manager information with basic permissions
+          // Get manager information using granted permissions
           await getManagerInfo(account);
         } catch (error) {
           console.error(error);
@@ -42,13 +42,13 @@
       
       window.getManagerInfo = async function(account) {
         try {
-          // Get access token with basic user.read permission
+          // Get access token with the already-granted permissions
           const tokenResponse = await msalInstance.acquireTokenSilent({
-            scopes: ["user.read"],
+            scopes: ["User.Read.All", "Directory.Read.All"],
             account: account
           });
           
-          // Try to call Microsoft Graph API to get manager info
+          // Call Microsoft Graph API to get manager info
           const response = await fetch('https://graph.microsoft.com/v1.0/me/manager', {
             headers: {
               'Authorization': `Bearer ${tokenResponse.accessToken}`,
@@ -64,25 +64,27 @@
               <p><strong>Email:</strong> ${manager.mail || manager.userPrincipalName || 'N/A'}</p>
               <p><strong>Job Title:</strong> ${manager.jobTitle || 'N/A'}</p>
               <p><strong>Department:</strong> ${manager.department || 'N/A'}</p>
+              <p><strong>Office Location:</strong> ${manager.officeLocation || 'N/A'}</p>
+              <p><strong>Phone:</strong> ${manager.businessPhones?.[0] || 'N/A'}</p>
             `;
           } else if (response.status === 404) {
             document.getElementById("manager-info").innerHTML = `
               <h3>Manager Information:</h3>
               <p>No manager found in the directory.</p>
             `;
-          } else if (response.status === 403) {
+          } else {
+            const errorText = await response.text();
+            console.error('API Error:', response.status, errorText);
             document.getElementById("manager-info").innerHTML = `
               <h3>Manager Information:</h3>
-              <p>Access to manager information requires additional permissions. Contact your admin to enable this feature.</p>
+              <p>Error loading manager information: HTTP ${response.status}</p>
             `;
-          } else {
-            throw new Error(`HTTP ${response.status}`);
           }
         } catch (error) {
           console.error('Error fetching manager info:', error);
           document.getElementById("manager-info").innerHTML = `
             <h3>Manager Information:</h3>
-            <p>Manager information not available with current permissions.</p>
+            <p>Error loading manager information: ${error.message}</p>
           `;
         }
       };
