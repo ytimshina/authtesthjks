@@ -27,12 +27,12 @@
       window.signIn = async function () {
         try {
           const loginResponse = await msalInstance.loginPopup({
-            scopes: ["user.read", "user.read.all", "directory.read.all"]
+            scopes: ["user.read"]
           });
           const account = loginResponse.account;
           document.getElementById("output").innerText = `Hello, ${account.username}`;
           
-          // Get manager information
+          // Try to get manager information with basic permissions
           await getManagerInfo(account);
         } catch (error) {
           console.error(error);
@@ -42,13 +42,13 @@
       
       window.getManagerInfo = async function(account) {
         try {
-          // Get access token for Microsoft Graph
+          // Get access token with basic user.read permission
           const tokenResponse = await msalInstance.acquireTokenSilent({
-            scopes: ["user.read.all", "directory.read.all"],
+            scopes: ["user.read"],
             account: account
           });
           
-          // Call Microsoft Graph API to get manager info
+          // Try to call Microsoft Graph API to get manager info
           const response = await fetch('https://graph.microsoft.com/v1.0/me/manager', {
             headers: {
               'Authorization': `Bearer ${tokenResponse.accessToken}`,
@@ -70,14 +70,19 @@
               <h3>Manager Information:</h3>
               <p>No manager found in the directory.</p>
             `;
+          } else if (response.status === 403) {
+            document.getElementById("manager-info").innerHTML = `
+              <h3>Manager Information:</h3>
+              <p>Access to manager information requires additional permissions. Contact your admin to enable this feature.</p>
+            `;
           } else {
-            throw new Error(`Failed to fetch manager info: ${response.status}`);
+            throw new Error(`HTTP ${response.status}`);
           }
         } catch (error) {
           console.error('Error fetching manager info:', error);
           document.getElementById("manager-info").innerHTML = `
             <h3>Manager Information:</h3>
-            <p>Error loading manager information: ${error.message}</p>
+            <p>Manager information not available with current permissions.</p>
           `;
         }
       };
