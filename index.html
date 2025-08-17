@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MSAL Auth - Terminated Employee Form</title>
+  <title>Employee Management System</title>
   <script src="https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 20px;
       background-color: #f5f5f5;
@@ -75,7 +75,7 @@
       color: green;
       margin-top: 10px;
     }
-    h1, h2 {
+    h1, h2, h3 {
       color: #323130;
     }
     .confirmation {
@@ -86,27 +86,276 @@
       border-radius: 4px;
       margin-top: 20px;
     }
+    .section-header {
+      background-color: #f8f9fa;
+      padding: 15px;
+      margin: 20px 0 15px 0;
+      border-left: 4px solid #0078d4;
+      border-radius: 4px;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+    }
+    small {
+      color: #666;
+      font-size: 12px;
+      display: block;
+      margin-top: 5px;
+    }
+    .hidden-field {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Microsoft Login - Terminated Employee Processing</h1>
+    <h1>Employee Management System</h1>
+    <p>This form automatically generates a ticket for tracking. No further actions are needed.</p>
     
     <div id="login-section">
       <button onclick="signIn()">Sign In</button>
       <button onclick="signOut()">Sign Out</button>
       <div id="output"></div>
-      <div id="manager-info"></div>
     </div>
 
-    <div id="terminated-form-section" class="form-section">
-      <h2>Terminated Employee Form</h2>
-      <p>Please complete the information below for the terminated employee:</p>
+    <div id="form-type-section" class="form-section">
+      <div class="section-header">
+        <h2>Select Form Type</h2>
+      </div>
+      
+      <div class="form-group">
+        <label for="isVendor">Is this account for a vendor? <span class="required">*</span></label>
+        <select id="isVendor" required onchange="handleVendorSelection()">
+          <option value="">Select an option</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="formTypeGroup" style="display: none;">
+        <label for="formType">Type of Form <span class="required">*</span></label>
+        <select id="formType" required onchange="showSelectedForm()">
+          <option value="">Select form type</option>
+          <option value="new">New Employee</option>
+          <option value="terminated">Terminated Employee</option>
+          <option value="transfer">Internal Transfer</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- NEW EMPLOYEE FORM -->
+    <div id="new-employee-form" class="form-section">
+      <div class="section-header">
+        <h2>New Employee Form</h2>
+      </div>
+      
+      <form id="newEmployeeForm">
+        <!-- General Employee Information (Auto-populated from manager) -->
+        <div class="section-header">
+          <h3>General Employee Information</h3>
+        </div>
+
+        <div class="form-group">
+          <label for="newFirstName">First Name <span class="required">*</span></label>
+          <input type="text" id="newFirstName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newLastName">Last Name <span class="required">*</span></label>
+          <input type="text" id="newLastName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newPreferredName">Preferred First Name/Surname for Account Setup (If applicable)</label>
+          <input type="text" id="newPreferredName">
+        </div>
+
+        <div class="form-group">
+          <label for="newJobTitle">Employee Job Title <span class="required">*</span></label>
+          <input type="text" id="newJobTitle" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newDepartment">Department Name <span class="required">*</span></label>
+          <select id="newDepartment" required>
+            <option value="">Select department</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Quality">Quality</option>
+            <option value="Sales">Sales</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="newManagerName">Manager's Name <span class="required">*</span></label>
+          <input type="text" id="newManagerName" required readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="newPhone">Employee Mobile Phone Number <span class="required">*</span></label>
+          <input type="tel" id="newPhone" placeholder="(xxx) xxx-xxxx" required>
+          <small>Synoptek uses this only to contact KCC Team Member with account changes such as password</small>
+        </div>
+
+        <div class="form-group">
+          <label for="newWorkLocation">Working Location <span class="required">*</span></label>
+          <select id="newWorkLocation" required>
+            <option value="">Select location</option>
+            <option value="Kansas City">Kansas City</option>
+            <option value="Remote">Remote</option>
+            <option value="Field">Field</option>
+          </select>
+        </div>
+
+        <!-- New Employee Specific Fields -->
+        <div class="section-header">
+          <h3>New Employee Details</h3>
+        </div>
+
+        <div class="form-group">
+          <label for="newStartDate">Employee Start Date <span class="required">*</span></label>
+          <input type="date" id="newStartDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="newModelEmployee">Please indicate an employee to model permissions <span class="required">*</span></label>
+          <select id="newModelEmployee" required>
+            <option value="">Loading employees...</option>
+          </select>
+          <small>This means that the New Employee will have similar if not the same permissions to files and folders.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="newRequireEmail">Does the new hire require email? <span class="required">*</span></label>
+          <select id="newRequireEmail" required>
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="newModelDL">Please indicate an employee to model Distribution Lists (DLs) <span class="required">*</span></label>
+          <textarea id="newModelDL" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="newModelSharePoint">Please indicate an employee to model SharePoint sites</label>
+          <textarea id="newModelSharePoint"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="newMSLicense">Microsoft Base License Selection <span class="required">*</span></label>
+          <select id="newMSLicense" required>
+            <option value="">Select license type</option>
+            <option value="E1">O365 E1 LIC – Outlook Webmail ONLY & Includes MS Teams</option>
+            <option value="E3">O365 E3 LIC – Email, MS Teams, and Office Suite (i.e., Word, Excel, PowerPoint, Access)</option>
+          </select>
+          <small>*As the Hiring Manager, be selective on license type chosen based on the new hire's job responsibilities. There is an additional higher cost for an E3 license.<br>
+          **For all requests for O365 E5 LIC – Email, MS Teams, Office Suite (i.e., Word, Excel, PowerPoint, Access), and Power BI Pro, reach out directly to Business Technology for the request to be approved.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="newTeamsPhone">Microsoft Teams Phone Licensing Option</label>
+          <select id="newTeamsPhone">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>*As the Hiring Manager, choose this option if the new hire's job responsibilities will include receiving inbound external calls. If Yes, there is an additional Teams Phone license that will be added to the base license for an additional cost.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="newDIDNumber">Direct Inbound Dialing (DID) Number Option</label>
+          <select id="newDIDNumber">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>The Microsoft Teams Phone licensing addition will only allow inbound calls from the outside world to be transferred from the Front Desk Operators. Outbound calls will require a DID number.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="newKineticAccess">Does this Employee need access to Kinetic? <span class="required">*</span></label>
+          <select id="newKineticAccess" required onchange="toggleKineticFields('new')">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group hidden-field" id="newKineticVersionGroup">
+          <label for="newKineticVersion">Which version of Kinetic access is needed?</label>
+          <select id="newKineticVersion">
+            <option value="">Select version</option>
+            <option value="full">Full Kinetic</option>
+            <option value="mes">MES</option>
+            <option value="both">Both</option>
+          </select>
+          <small>Hiring Manager: Full version is a workstation/client installation. MES is used for clocking on the production line and other production activities.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="newECxAccess">Does this Employee need access to ECx Manager?</label>
+          <select id="newECxAccess" onchange="toggleECxFields('new')">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>ECx Manager is used for Engineering Change Management.</small>
+        </div>
+
+        <div class="form-group hidden-field" id="newECxPermissionsGroup">
+          <label>What can the Employee submit in ECx Manager?</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="newECR" value="ECR">
+              <label for="newECR">Engineering Change Requests (ECR)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="newECO" value="ECO">
+              <label for="newECO">Engineering Change Orders (ECO)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="newECN" value="ECN">
+              <label for="newECN">Engineering Change Notifications (ECN)</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="newSpecialNotes">Onboarding Process Special Notes</label>
+          <textarea id="newSpecialNotes"></textarea>
+        </div>
+
+        <button type="submit">Submit New Employee Request</button>
+        <button type="button" onclick="resetAllForms()">Reset Form</button>
+      </form>
+    </div>
+
+    <!-- TERMINATED EMPLOYEE FORM -->
+    <div id="terminated-employee-form" class="form-section">
+      <div class="section-header">
+        <h2>Terminated Employee Form</h2>
+      </div>
       
       <form id="terminatedEmployeeForm">
         <div class="form-group">
-          <label for="employeeSelect">Select Employee to Terminate <span class="required">*</span></label>
-          <select id="employeeSelect" required>
+          <label for="terminatedEmployeeSelect">Select Employee to Terminate <span class="required">*</span></label>
+          <select id="terminatedEmployeeSelect" required>
             <option value="">Loading employees...</option>
           </select>
         </div>
@@ -117,41 +366,41 @@
         </div>
 
         <div class="form-group">
-          <label for="hadEmail">Did the Terminated Employee have email? <span class="required">*</span></label>
-          <select id="hadEmail" required onchange="toggleEmailForwarding()">
+          <label for="terminatedHadEmail">Did the Terminated Employee have email? <span class="required">*</span></label>
+          <select id="terminatedHadEmail" required onchange="toggleEmailForwarding()">
             <option value="">Select an option</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>
         </div>
 
-        <div class="form-group" id="emailForwardingGroup" style="display: none;">
-          <label for="emailForwarding">If the Terminated Employee has email, should it be forwarded to someone? If yes, enter that employee's name <span class="required">*</span></label>
-          <input type="text" id="emailForwarding" placeholder="Enter employee name or leave blank if no forwarding needed">
+        <div class="form-group hidden-field" id="terminatedEmailForwardingGroup">
+          <label for="terminatedEmailForwarding">If the Terminated Employee has email, should it be forwarded to someone? If yes, enter that employee's name <span class="required">*</span></label>
+          <input type="text" id="terminatedEmailForwarding" placeholder="Enter employee name or leave blank if no forwarding needed">
         </div>
 
-        <div class="form-group" id="emailAliasGroup" style="display: none;">
-          <label for="emailAliasRemoval">If the Terminated Employee has their email setup as a message alias, please indicate a date to remove</label>
-          <input type="date" id="emailAliasRemoval">
+        <div class="form-group hidden-field" id="terminatedEmailAliasGroup">
+          <label for="terminatedEmailAliasRemoval">If the Terminated Employee has their email setup as a message alias, please indicate a date to remove</label>
+          <input type="date" id="terminatedEmailAliasRemoval">
         </div>
 
         <div class="form-group">
-          <label for="deviceCollected">Was the KCC end user device collected? <span class="required">*</span></label>
-          <select id="deviceCollected" required onchange="toggleDeviceReason()">
+          <label for="terminatedDeviceCollected">Was the KCC end user device collected? <span class="required">*</span></label>
+          <select id="terminatedDeviceCollected" required onchange="toggleDeviceReason()">
             <option value="">Select an option</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>
         </div>
 
-        <div class="form-group" id="deviceReasonGroup" style="display: none;">
-          <label for="deviceReason">Why wasn't it collected? <span class="required">*</span></label>
-          <input type="text" id="deviceReason" placeholder="Explain why device was not collected">
+        <div class="form-group hidden-field" id="terminatedDeviceReasonGroup">
+          <label for="terminatedDeviceReason">Why wasn't it collected? <span class="required">*</span></label>
+          <input type="text" id="terminatedDeviceReason" placeholder="Explain why device was not collected">
         </div>
 
         <div class="form-group">
-          <label for="phoneTransfer">Did the Terminated Employee have a company phone number they would like to transfer to a new carrier? <span class="required">*</span></label>
-          <select id="phoneTransfer" required>
+          <label for="terminatedPhoneTransfer">Did the Terminated Employee have a company phone number they would like to transfer to a new carrier? <span class="required">*</span></label>
+          <select id="terminatedPhoneTransfer" required>
             <option value="">Select an option</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
@@ -160,8 +409,8 @@
         </div>
 
         <div class="form-group">
-          <label for="kineticAccount">Does the Terminated Employee have a Kinetic account to disable? <span class="required">*</span></label>
-          <select id="kineticAccount" required>
+          <label for="terminatedKineticAccount">Does the Terminated Employee have a Kinetic account to disable? <span class="required">*</span></label>
+          <select id="terminatedKineticAccount" required>
             <option value="">Select an option</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
@@ -169,8 +418,8 @@
         </div>
 
         <div class="form-group">
-          <label for="ecxAccess">Does this Employee have access to ECx Manager to remove?</label>
-          <select id="ecxAccess">
+          <label for="terminatedECxAccess">Does this Employee have access to ECx Manager to remove?</label>
+          <select id="terminatedECxAccess">
             <option value="">Select an option</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
@@ -178,26 +427,159 @@
         </div>
 
         <div class="form-group">
-          <label for="specialNotes">Offboarding Process Special Notes</label>
-          <textarea id="specialNotes" placeholder="Enter any special notes or instructions for the offboarding process"></textarea>
+          <label for="terminatedSpecialNotes">Offboarding Process Special Notes</label>
+          <textarea id="terminatedSpecialNotes" placeholder="Enter any special notes or instructions for the offboarding process"></textarea>
         </div>
 
         <button type="submit">Submit Termination Request</button>
-        <button type="button" onclick="resetForm()">Reset Form</button>
+        <button type="button" onclick="resetAllForms()">Reset Form</button>
       </form>
-
-      <div id="form-status"></div>
     </div>
 
+    <!-- INTERNAL TRANSFER FORM -->
+    <div id="transfer-form" class="form-section">
+      <div class="section-header">
+        <h2>Internal Employee Transfer Form</h2>
+      </div>
+      
+      <form id="transferForm">
+        <div class="form-group">
+          <label for="transferEmployeeSelect">Select Employee to Transfer <span class="required">*</span></label>
+          <select id="transferEmployeeSelect" required>
+            <option value="">Loading employees...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="transferDate">Employee Transfer Date <span class="required">*</span></label>
+          <input type="date" id="transferDate" required>
+          <small>As listed in HR</small>
+        </div>
+
+        <div class="form-group">
+          <label for="transferWorkLocation">Employee Transfer Updated Work Location <span class="required">*</span></label>
+          <select id="transferWorkLocation" required>
+            <option value="">Select location</option>
+            <option value="Kansas City">Kansas City</option>
+            <option value="Remote">Remote</option>
+            <option value="Field">Field</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="transferBadgeAccess">Did you notify HR to update the Transferred Employee's access badge access? <span class="required">*</span></label>
+          <select id="transferBadgeAccess" required>
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>This could include access levels as well as locations depending on his or her new role.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="transferEmailMaintain">Should the Transferred Employee email account be maintained, or should it be forwarded to someone? <span class="required">*</span></label>
+          <input type="text" id="transferEmailMaintain" placeholder="Enter 'maintain' or employee name to forward to" required>
+        </div>
+
+        <div class="form-group">
+          <label for="transferEmailAliasRemoval">If the Transferred Employee has their email account setup as a message alias, please indicate a date to remove <span class="required">*</span></label>
+          <input type="date" id="transferEmailAliasRemoval" required>
+          <small>We will pay for this email account while it remains active.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="transferDeviceRepurpose">Does the Transferred Employee have a company owned device that needs to be repurposed? <span class="required">*</span></label>
+          <select id="transferDeviceRepurpose" required>
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>Example: Position change from a non-Engineering position to requiring an Engineering level laptop.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="transferModelEmployee">Which employee should be used to mimic company owned device setup and network access? <span class="required">*</span></label>
+          <select id="transferModelEmployee" required>
+            <option value="">Loading employees...</option>
+          </select>
+          <small>This means that the transferred employee will have similar if, not the same permissions to files and folders, as the supplied employee.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="transferPhoneNumber">Did the Transferred Employee have a company phone number they would like to transfer to a new carrier? <span class="required">*</span></label>
+          <select id="transferPhoneNumber" required>
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="transferKineticUser">Which current Kinetic users permissions can be mirrored for this transferred employee?</label>
+          <input type="text" id="transferKineticUser" placeholder="Enter employee name">
+          <small>Hiring Manager: This would be the name of an employee that performs the same function.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="transferECxAccess">Does this Employee need access to ECx Manager? <span class="required">*</span></label>
+          <select id="transferECxAccess" required onchange="toggleECxFields('transfer')">
+            <option value="">Select an option</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+          <small>ECx Manager is used for Engineering Change Management.</small>
+        </div>
+
+        <div class="form-group hidden-field" id="transferECxPermissionsGroup">
+          <label>What can the Employee submit in ECx Manager?</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="transferECR" value="ECR">
+              <label for="transferECR">Engineering Change Requests (ECR)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="transferECO" value="ECO">
+              <label for="transferECO">Engineering Change Orders (ECO)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="transferECN" value="ECN">
+              <label for="transferECN">Engineering Change Notifications (ECN)</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="transferSpecialNotes">Transfer Process Special Notes</label>
+          <textarea id="transferSpecialNotes"></textarea>
+        </div>
+
+        <button type="submit">Submit Transfer Request</button>
+        <button type="button" onclick="resetAllForms()">Reset Form</button>
+      </form>
+    </div>
+
+    <!-- CONFIRMATION SECTION -->
     <div id="confirmation-section" style="display: none;">
       <div class="confirmation">
-        <h2>✓ Termination Request Submitted Successfully</h2>
-        <p><strong>Thank you!</strong> Your termination request has been submitted and a ticket has been automatically generated for tracking.</p>
-        <p><strong>Employee:</strong> <span id="conf-employee"></span></p>
-        <p><strong>Termination Date:</strong> <span id="conf-date"></span></p>
+        <h2>✓ Request Submitted Successfully</h2>
+        <p><strong>Thank you!</strong> Your <span id="conf-form-type"></span> request has been submitted and a ticket has been automatically generated for tracking.</p>
+        <div id="conf-details"></div>
         <p><strong>Submitted by:</strong> <span id="conf-manager"></span></p>
-        <p>No further actions are needed at this time. The IT team will process this request and handle all necessary account deactivations and system access removals.</p>
+        <p>No further actions are needed at this time. The IT team will process this request and handle all necessary account changes and system access modifications.</p>
         <button onclick="submitAnother()">Submit Another Request</button>
+      </div>
+    </div>
+
+    <!-- VENDOR REDIRECT -->
+    <div id="vendor-redirect" style="display: none;">
+      <div class="confirmation">
+        <h2>Vendor Access Request</h2>
+        <p>For vendor access requests, please use the dedicated vendor form:</p>
+        <a href="https://forms.office.com/r/4de9ChLZX3" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: bold;">
+          Technical Needs - Vendor Access Request Form
+        </a>
+        <br><br>
+        <button onclick="goBack()">Go Back</button>
       </div>
     </div>
   </div>
@@ -205,8 +587,8 @@
   <script>
     let msalInstance;
     let currentAccount;
+    let allEmployees = [];
 
-    // Ensure MSAL is available before using it
     window.addEventListener('DOMContentLoaded', () => {
       const msalConfig = {
         auth: {
@@ -226,8 +608,8 @@
         currentAccount = loginResponse.account;
         document.getElementById("output").innerText = `Hello, ${currentAccount.username}`;
         
-        // Load the terminated employee form
-        await loadDirectReports();
+        await loadAllEmployees();
+        document.getElementById('form-type-section').style.display = 'block';
         
       } catch (error) {
         console.error(error);
@@ -235,7 +617,7 @@
       }
     };
 
-    async function loadDirectReports() {
+    async function loadAllEmployees() {
       try {
         const tokenResponse = await msalInstance.acquireTokenSilent({
           scopes: ["user.read.all", "directory.read.all"],
@@ -243,105 +625,246 @@
         });
 
         // Get manager's direct reports
-        const response = await fetch('https://graph.microsoft.com/v1.0/me/directReports', {
+        const directReportsResponse = await fetch('https://graph.microsoft.com/v1.0/me/directReports', {
           headers: {
             'Authorization': `Bearer ${tokenResponse.accessToken}`,
             'Content-Type': 'application/json'
           }
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          const employees = data.value;
-          
-          const employeeSelect = document.getElementById('employeeSelect');
-          employeeSelect.innerHTML = '<option value="">Select an employee</option>';
-          
-          if (employees.length === 0) {
-            employeeSelect.innerHTML = '<option value="">No direct reports found</option>';
-          } else {
-            employees.forEach(employee => {
-              const option = document.createElement('option');
-              option.value = JSON.stringify({
-                id: employee.id,
-                displayName: employee.displayName,
-                mail: employee.mail || employee.userPrincipalName
-              });
-              option.textContent = `${employee.displayName} (${employee.mail || employee.userPrincipalName})`;
-              employeeSelect.appendChild(option);
-            });
+        // Get current user info for manager name
+        const currentUserResponse = await fetch('https://graph.microsoft.com/v1.0/me', {
+          headers: {
+            'Authorization': `Bearer ${tokenResponse.accessToken}`,
+            'Content-Type': 'application/json'
           }
+        });
+
+        if (directReportsResponse.ok && currentUserResponse.ok) {
+          const directReports = await directReportsResponse.json();
+          const currentUser = await currentUserResponse.json();
           
-          // Show the form
-          document.getElementById('terminated-form-section').style.display = 'block';
+          allEmployees = directReports.value;
           
-        } else {
-          throw new Error(`Failed to load direct reports: ${response.status}`);
+          // Auto-populate manager name in new employee form
+          document.getElementById('newManagerName').value = currentUser.displayName;
+          
+          populateEmployeeDropdowns();
         }
         
       } catch (error) {
-        console.error('Error loading direct reports:', error);
+        console.error('Error loading employees:', error);
         document.getElementById('output').innerHTML += `<div class="error">Error loading employees: ${error.message}</div>`;
       }
     }
 
+    function populateEmployeeDropdowns() {
+      const selects = [
+        'terminatedEmployeeSelect', 
+        'transferEmployeeSelect', 
+        'newModelEmployee', 
+        'transferModelEmployee'
+      ];
+      
+      selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+          select.innerHTML = '<option value="">Select an employee</option>';
+          
+          if (allEmployees.length === 0) {
+            select.innerHTML = '<option value="">No employees found</option>';
+          } else {
+            allEmployees.forEach(employee => {
+              const option = document.createElement('option');
+              option.value = JSON.stringify({
+                id: employee.id,
+                displayName: employee.displayName,
+                mail: employee.mail || employee.userPrincipalName,
+                jobTitle: employee.jobTitle || '',
+                department: employee.department || ''
+              });
+              option.textContent = `${employee.displayName} (${employee.mail || employee.userPrincipalName})`;
+              select.appendChild(option);
+            });
+          }
+        }
+      });
+    }
+
+    function handleVendorSelection() {
+      const isVendor = document.getElementById('isVendor').value;
+      const formTypeGroup = document.getElementById('formTypeGroup');
+      const vendorRedirect = document.getElementById('vendor-redirect');
+      
+      if (isVendor === 'yes') {
+        formTypeGroup.style.display = 'none';
+        vendorRedirect.style.display = 'block';
+        hideAllForms();
+      } else if (isVendor === 'no') {
+        formTypeGroup.style.display = 'block';
+        vendorRedirect.style.display = 'none';
+      } else {
+        formTypeGroup.style.display = 'none';
+        vendorRedirect.style.display = 'none';
+      }
+    }
+
+    function showSelectedForm() {
+      const formType = document.getElementById('formType').value;
+      hideAllForms();
+      
+      switch(formType) {
+        case 'new':
+          document.getElementById('new-employee-form').style.display = 'block';
+          break;
+        case 'terminated':
+          document.getElementById('terminated-employee-form').style.display = 'block';
+          break;
+        case 'transfer':
+          document.getElementById('transfer-form').style.display = 'block';
+          break;
+      }
+    }
+
+    function hideAllForms() {
+      document.getElementById('new-employee-form').style.display = 'none';
+      document.getElementById('terminated-employee-form').style.display = 'none';
+      document.getElementById('transfer-form').style.display = 'none';
+      document.getElementById('confirmation-section').style.display = 'none';
+    }
+
+    function toggleKineticFields(formType) {
+      const kineticAccess = document.getElementById(formType + 'KineticAccess').value;
+      const versionGroup = document.getElementById(formType + 'KineticVersionGroup');
+      
+      if (kineticAccess === 'yes' && versionGroup) {
+        versionGroup.classList.remove('hidden-field');
+      } else if (versionGroup) {
+        versionGroup.classList.add('hidden-field');
+      }
+    }
+
+    function toggleECxFields(formType) {
+      const ecxAccess = document.getElementById(formType + 'ECxAccess').value;
+      const permissionsGroup = document.getElementById(formType + 'ECxPermissionsGroup');
+      
+      if (ecxAccess === 'yes' && permissionsGroup) {
+        permissionsGroup.classList.remove('hidden-field');
+      } else if (permissionsGroup) {
+        permissionsGroup.classList.add('hidden-field');
+      }
+    }
+
     function toggleEmailForwarding() {
-      const hadEmail = document.getElementById('hadEmail').value;
-      const emailGroup = document.getElementById('emailForwardingGroup');
-      const aliasGroup = document.getElementById('emailAliasGroup');
+      const hadEmail = document.getElementById('terminatedHadEmail').value;
+      const emailGroup = document.getElementById('terminatedEmailForwardingGroup');
+      const aliasGroup = document.getElementById('terminatedEmailAliasGroup');
       
       if (hadEmail === 'yes') {
-        emailGroup.style.display = 'block';
-        aliasGroup.style.display = 'block';
-        document.getElementById('emailForwarding').required = true;
+        emailGroup.classList.remove('hidden-field');
+        aliasGroup.classList.remove('hidden-field');
+        document.getElementById('terminatedEmailForwarding').required = true;
       } else {
-        emailGroup.style.display = 'none';
-        aliasGroup.style.display = 'none';
-        document.getElementById('emailForwarding').required = false;
+        emailGroup.classList.add('hidden-field');
+        aliasGroup.classList.add('hidden-field');
+        document.getElementById('terminatedEmailForwarding').required = false;
       }
     }
 
     function toggleDeviceReason() {
-      const deviceCollected = document.getElementById('deviceCollected').value;
-      const reasonGroup = document.getElementById('deviceReasonGroup');
+      const deviceCollected = document.getElementById('terminatedDeviceCollected').value;
+      const reasonGroup = document.getElementById('terminatedDeviceReasonGroup');
       
       if (deviceCollected === 'no') {
-        reasonGroup.style.display = 'block';
-        document.getElementById('deviceReason').required = true;
+        reasonGroup.classList.remove('hidden-field');
+        document.getElementById('terminatedDeviceReason').required = true;
       } else {
-        reasonGroup.style.display = 'none';
-        document.getElementById('deviceReason').required = false;
+        reasonGroup.classList.add('hidden-field');
+        document.getElementById('terminatedDeviceReason').required = false;
       }
     }
 
-    document.getElementById('terminatedEmployeeForm').addEventListener('submit', function(e) {
+    // Form submission handlers
+    document.getElementById('newEmployeeForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      const employeeData = JSON.parse(document.getElementById('employeeSelect').value);
-      const terminationDate = document.getElementById('terminationDate').value;
-      
-      // Show confirmation
-      document.getElementById('conf-employee').textContent = employeeData.displayName;
-      document.getElementById('conf-date').textContent = new Date(terminationDate).toLocaleDateString();
-      document.getElementById('conf-manager').textContent = currentAccount.name || currentAccount.username;
-      
-      // Hide form and show confirmation
-      document.getElementById('terminated-form-section').style.display = 'none';
-      document.getElementById('confirmation-section').style.display = 'block';
+      submitForm('new employee');
     });
 
-    function resetForm() {
-      document.getElementById('terminatedEmployeeForm').reset();
-      document.getElementById('emailForwardingGroup').style.display = 'none';
-      document.getElementById('emailAliasGroup').style.display = 'none';
-      document.getElementById('deviceReasonGroup').style.display = 'none';
-      document.getElementById('form-status').innerHTML = '';
+    document.getElementById('terminatedEmployeeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitForm('terminated employee');
+    });
+
+    document.getElementById('transferForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitForm('internal transfer');
+    });
+
+    function submitForm(formType) {
+      // Get form data based on type
+      let employeeData, formData;
+      
+      if (formType === 'new employee') {
+        employeeData = {
+          displayName: document.getElementById('newFirstName').value + ' ' + document.getElementById('newLastName').value
+        };
+        formData = {
+          startDate: document.getElementById('newStartDate').value,
+          jobTitle: document.getElementById('newJobTitle').value,
+          department: document.getElementById('newDepartment').value
+        };
+      } else if (formType === 'terminated employee') {
+        employeeData = JSON.parse(document.getElementById('terminatedEmployeeSelect').value);
+        formData = {
+          terminationDate: document.getElementById('terminationDate').value
+        };
+      } else if (formType === 'internal transfer') {
+        employeeData = JSON.parse(document.getElementById('transferEmployeeSelect').value);
+        formData = {
+          transferDate: document.getElementById('transferDate').value,
+          newLocation: document.getElementById('transferWorkLocation').value
+        };
+      }
+      
+      // Show confirmation
+      document.getElementById('conf-form-type').textContent = formType;
+      document.getElementById('conf-manager').textContent = currentAccount.name || currentAccount.username;
+      
+      let detailsHtml = `<p><strong>Employee:</strong> ${employeeData.displayName}</p>`;
+      Object.keys(formData).forEach(key => {
+        const value = formData[key];
+        if (value && key.includes('Date')) {
+          detailsHtml += `<p><strong>${key}:</strong> ${new Date(value).toLocaleDateString()}</p>`;
+        } else if (value) {
+          detailsHtml += `<p><strong>${key}:</strong> ${value}</p>`;
+        }
+      });
+      
+      document.getElementById('conf-details').innerHTML = detailsHtml;
+      
+      hideAllForms();
+      document.getElementById('confirmation-section').style.display = 'block';
+    }
+
+    function resetAllForms() {
+      document.querySelectorAll('form').forEach(form => form.reset());
+      document.querySelectorAll('.hidden-field').forEach(field => field.classList.add('hidden-field'));
+      document.getElementById('newManagerName').value = currentAccount?.name || '';
     }
 
     function submitAnother() {
       document.getElementById('confirmation-section').style.display = 'none';
-      document.getElementById('terminated-form-section').style.display = 'block';
-      resetForm();
+      document.getElementById('form-type-section').style.display = 'block';
+      resetAllForms();
+      document.getElementById('isVendor').value = '';
+      document.getElementById('formType').value = '';
+      document.getElementById('formTypeGroup').style.display = 'none';
+    }
+
+    function goBack() {
+      document.getElementById('vendor-redirect').style.display = 'none';
+      document.getElementById('form-type-section').style.display = 'block';
+      document.getElementById('isVendor').value = '';
     }
       
     window.signOut = function () {
@@ -350,12 +873,11 @@
         msalInstance.logoutPopup({
           account: account
         });
-        // Clear displayed information
         document.getElementById("output").innerText = '';
-        document.getElementById("manager-info").innerHTML = '';
-        document.getElementById('terminated-form-section').style.display = 'none';
-        document.getElementById('confirmation-section').style.display = 'none';
-        resetForm();
+        document.getElementById('form-type-section').style.display = 'none';
+        hideAllForms();
+        document.getElementById('vendor-redirect').style.display = 'none';
+        resetAllForms();
       }
     };
   </script>
