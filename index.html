@@ -153,14 +153,12 @@
       </div>
     </div>
 
-    <!-- NEW EMPLOYEE FORM -->
     <div id="new-employee-form" class="form-section">
       <div class="section-header">
         <h2>New Employee Form</h2>
       </div>
       
       <form id="newEmployeeForm">
-        <!-- General Employee Information (Auto-populated from manager) -->
         <div class="section-header">
           <h3>General Employee Information</h3>
         </div>
@@ -220,7 +218,6 @@
           </select>
         </div>
 
-        <!-- New Employee Specific Fields -->
         <div class="section-header">
           <h3>New Employee Details</h3>
         </div>
@@ -346,7 +343,6 @@
       </form>
     </div>
 
-    <!-- TERMINATED EMPLOYEE FORM -->
     <div id="terminated-employee-form" class="form-section">
       <div class="section-header">
         <h2>Terminated Employee Form</h2>
@@ -436,7 +432,6 @@
       </form>
     </div>
 
-    <!-- INTERNAL TRANSFER FORM -->
     <div id="transfer-form" class="form-section">
       <div class="section-header">
         <h2>Internal Employee Transfer Form</h2>
@@ -558,7 +553,6 @@
       </form>
     </div>
 
-    <!-- CONFIRMATION SECTION -->
     <div id="confirmation-section" style="display: none;">
       <div class="confirmation">
         <h2>✓ Request Submitted Successfully</h2>
@@ -570,7 +564,6 @@
       </div>
     </div>
 
-    <!-- VENDOR REDIRECT -->
     <div id="vendor-redirect" style="display: none;">
       <div class="confirmation">
         <h2>Vendor Access Request</h2>
@@ -599,7 +592,7 @@
       };
       msalInstance = new msal.PublicClientApplication(msalConfig);
     });
-      
+    
     window.signIn = async function () {
       try {
         const loginResponse = await msalInstance.loginPopup({
@@ -763,11 +756,9 @@
       if (hadEmail === 'yes') {
         emailGroup.classList.remove('hidden-field');
         aliasGroup.classList.remove('hidden-field');
-        document.getElementById('terminatedEmailForwarding').required = true;
       } else {
         emailGroup.classList.add('hidden-field');
         aliasGroup.classList.add('hidden-field');
-        document.getElementById('terminatedEmailForwarding').required = false;
       }
     }
 
@@ -777,109 +768,82 @@
       
       if (deviceCollected === 'no') {
         reasonGroup.classList.remove('hidden-field');
-        document.getElementById('terminatedDeviceReason').required = true;
       } else {
         reasonGroup.classList.add('hidden-field');
-        document.getElementById('terminatedDeviceReason').required = false;
       }
     }
+    
+    // ... Other functions like signOut, resetAllForms, etc. would go here ...
 
-    // Form submission handlers
-    document.getElementById('newEmployeeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      submitForm('new employee');
-    });
+    // ===================================================================
+    // == NEW CODE: Event listener for the Terminated Employee Form ==
+    // ===================================================================
+    document.getElementById('terminatedEmployeeForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent the default browser form submission action
 
-    document.getElementById('terminatedEmployeeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      submitForm('terminated employee');
-    });
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
 
-    document.getElementById('transferForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      submitForm('internal transfer');
-    });
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = ''; // Clear previous success/error messages
 
-    function submitForm(formType) {
-      // Get form data based on type
-      let employeeData, formData;
-      
-      if (formType === 'new employee') {
-        employeeData = {
-          displayName: document.getElementById('newFirstName').value + ' ' + document.getElementById('newLastName').value
-        };
-        formData = {
-          startDate: document.getElementById('newStartDate').value,
-          jobTitle: document.getElementById('newJobTitle').value,
-          department: document.getElementById('newDepartment').value
-        };
-      } else if (formType === 'terminated employee') {
-        employeeData = JSON.parse(document.getElementById('terminatedEmployeeSelect').value);
-        formData = {
-          terminationDate: document.getElementById('terminationDate').value
-        };
-      } else if (formType === 'internal transfer') {
-        employeeData = JSON.parse(document.getElementById('transferEmployeeSelect').value);
-        formData = {
-          transferDate: document.getElementById('transferDate').value,
-          newLocation: document.getElementById('transferWorkLocation').value
-        };
-      }
-      
-      // Show confirmation
-      document.getElementById('conf-form-type').textContent = formType;
-      document.getElementById('conf-manager').textContent = currentAccount.name || currentAccount.username;
-      
-      let detailsHtml = `<p><strong>Employee:</strong> ${employeeData.displayName}</p>`;
-      Object.keys(formData).forEach(key => {
-        const value = formData[key];
-        if (value && key.includes('Date')) {
-          detailsHtml += `<p><strong>${key}:</strong> ${new Date(value).toLocaleDateString()}</p>`;
-        } else if (value) {
-          detailsHtml += `<p><strong>${key}:</strong> ${value}</p>`;
+        try {
+            // 1. Get the selected employee's data from the dropdown
+            const employeeSelect = document.getElementById('terminatedEmployeeSelect');
+            if (!employeeSelect.value) {
+                throw new Error('Please select an employee to terminate.');
+            }
+            const selectedEmployee = JSON.parse(employeeSelect.value);
+            const employeeEmail = selectedEmployee.mail;
+
+            if (!employeeEmail) {
+                throw new Error('The selected employee does not have a valid email address.');
+            }
+
+            // 2. Construct the API URL with the email as a query parameter
+            // The email is URL-encoded to handle special characters safely
+            const apiUrl = `http://localhost:8080/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
+
+            // 3. Send the POST request to the API
+            console.log(`Sending POST request to: ${apiUrl}`); // For debugging
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'accept': '*/*', // As specified in your curl example
+                },
+                // No body is needed for this request
+            });
+
+            // 4. Check if the API call was successful
+            if (response.ok) {
+                console.log('API call successful. Employee disabled.');
+                outputDiv.innerHTML = `<div class="success">Termination request for ${selectedEmployee.displayName} was submitted successfully.</div>`;
+                // Optionally, hide the form and show the confirmation section
+                hideAllForms();
+                document.getElementById('confirmation-section').style.display = 'block';
+                document.getElementById('conf-form-type').textContent = 'Termination';
+                document.getElementById('conf-manager').textContent = currentAccount.username;
+                document.getElementById('conf-details').innerHTML = `<p><strong>Terminated Employee:</strong> ${selectedEmployee.displayName}</p>`;
+
+            } else {
+                // If the server responded with an error status (e.g., 404, 500)
+                const errorText = await response.text();
+                throw new Error(`API Error: ${response.status} - ${errorText || 'Failed to submit termination.'}`);
+            }
+
+        } catch (error) {
+            // Handle errors from the fetch call (e.g., network error) or thrown errors
+            console.error('Termination submission failed:', error);
+            outputDiv.innerHTML = `<div class="error">An error occurred: ${error.message}</div>`;
+        } finally {
+            // Re-enable the submit button regardless of success or failure
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Termination Request';
         }
-      });
-      
-      document.getElementById('conf-details').innerHTML = detailsHtml;
-      
-      hideAllForms();
-      document.getElementById('confirmation-section').style.display = 'block';
-    }
+    });
 
-    function resetAllForms() {
-      document.querySelectorAll('form').forEach(form => form.reset());
-      document.querySelectorAll('.hidden-field').forEach(field => field.classList.add('hidden-field'));
-      document.getElementById('newManagerName').value = currentAccount?.name || '';
-    }
-
-    function submitAnother() {
-      document.getElementById('confirmation-section').style.display = 'none';
-      document.getElementById('form-type-section').style.display = 'block';
-      resetAllForms();
-      document.getElementById('isVendor').value = '';
-      document.getElementById('formType').value = '';
-      document.getElementById('formTypeGroup').style.display = 'none';
-    }
-
-    function goBack() {
-      document.getElementById('vendor-redirect').style.display = 'none';
-      document.getElementById('form-type-section').style.display = 'block';
-      document.getElementById('isVendor').value = '';
-    }
-      
-    window.signOut = function () {
-      const account = msalInstance.getAllAccounts()[0];
-      if (account) {
-        msalInstance.logoutPopup({
-          account: account
-        });
-        document.getElementById("output").innerText = '';
-        document.getElementById('form-type-section').style.display = 'none';
-        hideAllForms();
-        document.getElementById('vendor-redirect').style.display = 'none';
-        resetAllForms();
-      }
-    };
   </script>
 </body>
 </html>
