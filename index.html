@@ -803,7 +803,7 @@
 
             // 2. Construct the API URL with the email as a query parameter
             // The email is URL-encoded to handle special characters safely
-            const apiUrl = `http://localhost:8080/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
+            const apiUrl = `https://ab251b24a8b8.ngrok-free.app/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
 
             // 3. Send the POST request to the API
             console.log(`Sending POST request to: ${apiUrl}`); // For debugging
@@ -847,3 +847,4 @@
   </script>
 </body>
 </html>
+
