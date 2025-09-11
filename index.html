@@ -1387,7 +1387,7 @@
           throw new Error('The selected employee does not have a valid email address.');
         }
 
-        const apiUrl = `https://ab251b24a8b8.ngrok-free.app/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
+        const apiUrl = `http://localhost:5000/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
 
         const response = await fetch(apiUrl, {
           method: 'POST',
@@ -1498,3 +1498,4 @@
   </script>
 </body>
 </html>
+
