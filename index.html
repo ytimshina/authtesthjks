@@ -527,7 +527,7 @@
         <form id="newEmployeeForm">
           <div class="section-title" style="font-size: 1.2rem; margin-top: 20px;">
             <div class="section-icon">ℹ️</div>
-            General Information
+            Personal Information
           </div>
 
           <div class="form-grid">
@@ -546,6 +546,19 @@
               <input type="text" id="newPreferredName" placeholder="If different from first name">
             </div>
 
+            <div class="form-group">
+              <label for="newPhone">Mobile Phone <span class="required">*</span></label>
+              <input type="tel" id="newPhone" placeholder="(xxx) xxx-xxxx" required>
+              <small>Used only for account change notifications</small>
+            </div>
+          </div>
+
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">🏢</div>
+            Job Information
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
               <label for="newJobTitle">Job Title <span class="required">*</span></label>
               <input type="text" id="newJobTitle" required>
@@ -571,12 +584,6 @@
             </div>
 
             <div class="form-group">
-              <label for="newPhone">Mobile Phone <span class="required">*</span></label>
-              <input type="tel" id="newPhone" placeholder="(xxx) xxx-xxxx" required>
-              <small>Used only for account change notifications</small>
-            </div>
-
-            <div class="form-group">
               <label for="newWorkLocation">Work Location <span class="required">*</span></label>
               <select id="newWorkLocation" required>
                 <option value="">Select location</option>
@@ -584,6 +591,11 @@
                 <option value="Remote">Remote</option>
                 <option value="Field">Field</option>
               </select>
+            </div>
+
+            <div class="form-group">
+              <label for="newStartDate">Start Date <span class="required">*</span></label>
+              <input type="date" id="newStartDate" required>
             </div>
           </div>
 
@@ -593,11 +605,6 @@
           </div>
 
           <div class="form-grid">
-            <div class="form-group">
-              <label for="newStartDate">Start Date <span class="required">*</span></label>
-              <input type="date" id="newStartDate" required>
-            </div>
-
             <div class="form-group">
               <label for="newModelEmployee">Model Employee Permissions <span class="required">*</span></label>
               <select id="newModelEmployee" required>
@@ -644,7 +651,14 @@
               </select>
               <small>Full version is workstation client. MES is for production activities.</small>
             </div>
+          </div>
 
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">📞</div>
+            Communication & Phone
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
               <label for="newTeamsPhone">Microsoft Teams Phone Licensing Option</label>
               <select id="newTeamsPhone">
@@ -664,7 +678,14 @@
               </select>
               <small>Microsoft Teams Phone licensing allows inbound calls to be transferred from Front Desk. Outbound calls require a DID number.</small>
             </div>
+          </div>
 
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">⚙️</div>
+            ECx Manager Access
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
               <label for="newECxAccess">ECx Manager Access?</label>
               <select id="newECxAccess" onchange="toggleECxFields('new')">
@@ -694,6 +715,11 @@
             </div>
           </div>
 
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">📧</div>
+            Distribution Lists & Notes
+          </div>
+
           <div class="form-group">
             <label for="newModelDL">Distribution Lists Model <span class="required">*</span></label>
             <textarea id="newModelDL" required placeholder="Employee name to model distribution lists from"></textarea>
@@ -719,6 +745,11 @@
         </div>
         
         <form id="terminatedEmployeeForm">
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 20px;">
+            <div class="section-icon">👤</div>
+            Employee Information
+          </div>
+
           <div class="form-grid">
             <div class="form-group">
               <label for="terminatedEmployeeSelect">Employee to Terminate <span class="required">*</span></label>
@@ -731,7 +762,14 @@
               <label for="terminationDate">Termination Date <span class="required">*</span></label>
               <input type="date" id="terminationDate" required>
             </div>
+          </div>
 
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">📧</div>
+            Email Account Management
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
               <label for="terminatedHadEmail">Had Email Account? <span class="required">*</span></label>
               <select id="terminatedHadEmail" required onchange="toggleEmailForwarding()">
@@ -746,6 +784,19 @@
               <input type="text" id="terminatedEmailForwarding" placeholder="Employee name or leave blank">
             </div>
 
+            <div class="form-group hidden-field" id="terminatedEmailAliasGroup">
+              <label for="terminatedEmailAliasRemoval">Email Alias Removal Date</label>
+              <input type="date" id="terminatedEmailAliasRemoval">
+              <small>If the terminated employee has their email setup as a message alias, indicate when to remove it</small>
+            </div>
+          </div>
+
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">💻</div>
+            Device & Equipment
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
               <label for="terminatedDeviceCollected">Device Collected? <span class="required">*</span></label>
               <select id="terminatedDeviceCollected" required onchange="toggleDeviceReason()">
@@ -755,50 +806,57 @@
               </select>
             </div>
 
-            <div class="form-group hidden-field" id="terminatedEmailAliasGroup">
-              <label for="terminatedEmailAliasRemoval">If the Terminated Employee has their email setup as a message alias, please indicate a date to remove</label>
-              <input type="date" id="terminatedEmailAliasRemoval">
-            </div>
-
-    
-
             <div class="form-group hidden-field" id="terminatedDeviceReasonGroup">
               <label for="terminatedDeviceReason">Why wasn't it collected? <span class="required">*</span></label>
               <input type="text" id="terminatedDeviceReason" placeholder="Explain why device was not collected">
             </div>
+          </div>
 
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">📞</div>
+            Phone & Communication
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
-              <label for="terminatedPhoneTransfer">Did the Terminated Employee have a company phone number they would like to transfer to a new carrier? <span class="required">*</span></label>
+              <label for="terminatedPhoneTransfer">Company Phone Number Transfer? <span class="required">*</span></label>
               <select id="terminatedPhoneTransfer" required>
                 <option value="">Select an option</option>
-                <option value="yes">Yes</option>
+                <option value="yes">Yes - Transfer to new carrier</option>
                 <option value="no">No</option>
               </select>
-              <small>Phone stipends are automatically removed when the Terminated Employee is removed from Paycor.</small>
+              <small>Phone stipends are automatically removed when the employee is removed from Paycor.</small>
             </div>
+          </div>
 
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 30px;">
+            <div class="section-icon">🔧</div>
+            System Access Removal
+          </div>
+
+          <div class="form-grid">
             <div class="form-group">
-              <label for="terminatedKineticAccount">Does the Terminated Employee have a Kinetic account to disable? <span class="required">*</span></label>
+              <label for="terminatedKineticAccount">Disable Kinetic Account? <span class="required">*</span></label>
               <select id="terminatedKineticAccount" required>
                 <option value="">Select an option</option>
                 <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="no">No - No Kinetic Account</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="terminatedECxAccess">Does this Employee have access to ECx Manager to remove?</label>
+              <label for="terminatedECxAccess">Remove ECx Manager Access?</label>
               <select id="terminatedECxAccess">
                 <option value="">Select an option</option>
                 <option value="yes">Yes</option>
-                <option value="no">No</option>
+                <option value="no">No - No ECx Access</option>
               </select>
             </div>
           </div>
 
           <div class="form-group">
             <label for="terminatedSpecialNotes">Offboarding Notes</label>
-            <textarea id="terminatedSpecialNotes" placeholder="Any special offboarding instructions"></textarea>
+            <textarea id="terminatedSpecialNotes" placeholder="Any special offboarding instructions or additional information"></textarea>
           </div>
 
           <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
@@ -816,6 +874,11 @@
         </div>
         
         <form id="transferForm">
+          <div class="section-title" style="font-size: 1.2rem; margin-top: 20px;">
+            <div class="section-icon">👤</div>
+            Transfer Information
+          </div>
+
           <div class="form-grid">
             <div class="form-group">
               <label for="transferEmployeeSelect">Employee to Transfer <span class="required">*</span></label>
@@ -850,7 +913,7 @@
 
           <div class="form-group">
             <label for="transferSpecialNotes">Transfer Notes</label>
-            <textarea id="transferSpecialNotes" placeholder="Any special transfer requirements"></textarea>
+            <textarea id="transferSpecialNotes" placeholder="Any special transfer requirements or changes needed"></textarea>
           </div>
 
           <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
@@ -866,7 +929,7 @@
       <div class="glass-card">
         <div class="section-title">
           <div class="section-icon">✏️</div>
-          Update Active Directory Information
+          Update Employee Information
         </div>
         
         <form id="updateEmployeeForm">
@@ -878,8 +941,8 @@
           </div>
 
           <div class="section-title" style="font-size: 1.2rem; margin: 30px 0 20px 0;">
-            <div class="section-icon">📋</div>
-            Active Directory Fields
+            <div class="section-icon">ℹ️</div>
+            Personal Information
           </div>
 
           <div class="form-grid">
@@ -894,6 +957,60 @@
             </div>
 
             <div class="form-group">
+              <label for="updateMobilePhone">Mobile Phone</label>
+              <input type="tel" id="updateMobilePhone" placeholder="(xxx) xxx-xxxx">
+            </div>
+
+            <div class="form-group">
+              <label for="updateOfficePhone">Office Phone</label>
+              <input type="tel" id="updateOfficePhone" placeholder="(xxx) xxx-xxxx">
+            </div>
+          </div>
+
+          <div class="section-title" style="font-size: 1.2rem; margin: 30px 0 20px 0;">
+            <div class="section-icon">🏢</div>
+            Job Information
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="updateTitle">Job Title</label>
+              <input type="text" id="updateTitle" placeholder="Job Title">
+            </div>
+
+            <div class="form-group">
+              <label for="updateDepartment">Department</label>
+              <input type="text" id="updateDepartment" placeholder="Department Name">
+            </div>
+
+            <div class="form-group">
+              <label for="updateManager">Manager</label>
+              <input type="text" id="updateManager" placeholder="Manager Display Name">
+            </div>
+
+            <div class="form-group">
+              <label for="updateOffice">Office Location</label>
+              <input type="text" id="updateOffice" placeholder="Office Location">
+            </div>
+
+            <div class="form-group">
+              <label for="updateCompany">Company</label>
+              <input type="text" id="updateCompany" placeholder="Company Name">
+            </div>
+
+            <div class="form-group">
+              <label for="updateEmployeeID">Employee ID</label>
+              <input type="text" id="updateEmployeeID" placeholder="Employee ID Number">
+            </div>
+          </div>
+
+          <div class="section-title" style="font-size: 1.2rem; margin: 30px 0 20px 0;">
+            <div class="section-icon">🔧</div>
+            Technical Information
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
               <label for="updateSamAccountName">SAM Account Name</label>
               <input type="text" id="updateSamAccountName" placeholder="jdoe">
             </div>
@@ -904,47 +1021,7 @@
             </div>
 
             <div class="form-group">
-              <label for="updateManager">Manager</label>
-              <input type="text" id="updateManager" placeholder="Manager Display Name">
-            </div>
-
-            <div class="form-group">
-              <label for="updateTitle">Title</label>
-              <input type="text" id="updateTitle" placeholder="Job Title">
-            </div>
-
-            <div class="form-group">
-              <label for="updateDepartment">Department</label>
-              <input type="text" id="updateDepartment" placeholder="Department Name">
-            </div>
-
-            <div class="form-group">
-              <label for="updateCompany">Company</label>
-              <input type="text" id="updateCompany" placeholder="Company Name">
-            </div>
-
-            <div class="form-group">
-              <label for="updateOffice">Office</label>
-              <input type="text" id="updateOffice" placeholder="Office Location">
-            </div>
-
-            <div class="form-group">
-              <label for="updateOfficePhone">Office Phone</label>
-              <input type="tel" id="updateOfficePhone" placeholder="(xxx) xxx-xxxx">
-            </div>
-
-            <div class="form-group">
-              <label for="updateMobilePhone">Mobile Phone</label>
-              <input type="tel" id="updateMobilePhone" placeholder="(xxx) xxx-xxxx">
-            </div>
-
-            <div class="form-group">
-              <label for="updateEmployeeID">Employee ID</label>
-              <input type="text" id="updateEmployeeID" placeholder="Employee ID Number">
-            </div>
-
-            <div class="form-group">
-              <label for="updateEnabled">Account Enabled</label>
+              <label for="updateEnabled">Account Status</label>
               <select id="updateEnabled">
                 <option value="">Select status</option>
                 <option value="true">Enabled</option>
@@ -954,12 +1031,12 @@
           </div>
 
           <div class="form-group">
-            <label for="updateNotes">Update Notes</label>
-            <textarea id="updateNotes" placeholder="Describe the changes being made and reason for update"></textarea>
+            <label for="updateNotes">Update Notes <span class="required">*</span></label>
+            <textarea id="updateNotes" required placeholder="Describe the changes being made and reason for update"></textarea>
           </div>
 
           <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
-            <button type="submit" class="button">Submit AD Update Request</button>
+            <button type="submit" class="button">Submit Update Request</button>
             <button type="button" class="button button-secondary" onclick="clearUpdateForm()">Clear Form</button>
           </div>
         </form>
@@ -1148,10 +1225,11 @@
       const employee = JSON.parse(employeeSelect.value);
       
       // Pre-populate form fields with current employee data
-      document.getElementById('updateJobTitle').value = employee.jobTitle || '';
+      document.getElementById('updateTitle').value = employee.jobTitle || '';
       document.getElementById('updateDepartment').value = employee.department || '';
-      document.getElementById('updatePhone').value = employee.mobilePhone || '';
-      // Add more field mappings as needed
+      document.getElementById('updateMobilePhone').value = employee.mobilePhone || '';
+      document.getElementById('updateEmail').value = employee.mail || '';
+      document.getElementById('updateDisplayName').value = employee.displayName || '';
     };
 
     // Form Navigation Functions
@@ -1224,11 +1302,14 @@
     function toggleEmailForwarding() {
       const hadEmail = document.getElementById('terminatedHadEmail').value;
       const emailGroup = document.getElementById('terminatedEmailForwardingGroup');
+      const aliasGroup = document.getElementById('terminatedEmailAliasGroup');
       
-      if (hadEmail === 'yes' && emailGroup) {
-        emailGroup.classList.remove('hidden-field');
-      } else if (emailGroup) {
-        emailGroup.classList.add('hidden-field');
+      if (hadEmail === 'yes') {
+        if (emailGroup) emailGroup.classList.remove('hidden-field');
+        if (aliasGroup) aliasGroup.classList.remove('hidden-field');
+      } else {
+        if (emailGroup) emailGroup.classList.add('hidden-field');
+        if (aliasGroup) aliasGroup.classList.add('hidden-field');
       }
     }
 
@@ -1383,50 +1464,14 @@
         
         const selectedEmployee = JSON.parse(employeeSelect.value);
         
-        // Collect form data
-        const updateData = {
-          employeeId: selectedEmployee.id,
-          employeeName: selectedEmployee.displayName,
-          jobTitle: document.getElementById('updateJobTitle').value,
-          department: document.getElementById('updateDepartment').value,
-          workLocation: document.getElementById('updateWorkLocation').value,
-          phone: document.getElementById('updatePhone').value,
-          managerName: document.getElementById('updateManagerName').value,
-          msLicense: document.getElementById('updateMSLicense').value,
-          kineticAccess: document.getElementById('updateKineticAccess').value,
-          kineticVersion: document.getElementById('updateKineticVersion')?.value || '',
-          ecxAccess: document.getElementById('updateECxAccess').value,
-          ecxPermissions: getSelectedCheckboxValues('update'),
-          notes: document.getElementById('updateNotes').value,
-          submittedBy: currentAccount.username,
-          submittedDate: new Date().toISOString()
-        };
-
-        // TODO: Replace with your actual API endpoint
-        const apiUrl = 'https://your-api-endpoint.com/api/Employee/update';
+        hideAllForms();
+        document.getElementById('confirmation-section').style.display = 'block';
+        document.getElementById('conf-form-type').textContent = 'Employee Update';
+        document.getElementById('conf-manager').textContent = currentAccount.username;
+        document.getElementById('conf-details').innerHTML = `<p><strong>Updated Employee:</strong> ${selectedEmployee.displayName}</p>`;
         
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'accept': '*/*',
-          },
-          body: JSON.stringify(updateData)
-        });
-
-        if (response.ok) {
-          hideAllForms();
-          document.getElementById('confirmation-section').style.display = 'block';
-          document.getElementById('conf-form-type').textContent = 'Employee Update';
-          document.getElementById('conf-manager').textContent = currentAccount.username;
-          document.getElementById('conf-details').innerHTML = `<p><strong>Updated Employee:</strong> ${selectedEmployee.displayName}</p>`;
-          
-          // Clear the form
-          clearUpdateForm();
-        } else {
-          const errorText = await response.text();
-          throw new Error(`API Error: ${response.status} - ${errorText || 'Failed to submit update.'}`);
-        }
+        // Clear the form
+        clearUpdateForm();
 
       } catch (error) {
         console.error('Update submission failed:', error);
@@ -1453,4 +1498,3 @@
   </script>
 </body>
 </html>
-
