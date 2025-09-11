@@ -783,118 +783,90 @@
       <div class="glass-card">
         <div class="section-title">
           <div class="section-icon">✏️</div>
-          Update Employee Information
+          Update Active Directory Information
         </div>
         
         <form id="updateEmployeeForm">
+          <div class="form-group">
+            <label for="updateEmployeeSelect">Select Employee <span class="required">*</span></label>
+            <select id="updateEmployeeSelect" required onchange="loadEmployeeData()">
+              <option value="">Loading employees...</option>
+            </select>
+          </div>
+
+          <div class="section-title" style="font-size: 1.2rem; margin: 30px 0 20px 0;">
+            <div class="section-icon">📋</div>
+            Active Directory Fields
+          </div>
+
           <div class="form-grid">
             <div class="form-group">
-              <label for="updateEmployeeSelect">Select Employee <span class="required">*</span></label>
-              <select id="updateEmployeeSelect" required onchange="loadEmployeeData()">
-                <option value="">Loading employees...</option>
-              </select>
+              <label for="updateEmail">Email</label>
+              <input type="email" id="updateEmail" placeholder="user@company.com">
             </div>
 
             <div class="form-group">
-              <label for="updateJobTitle">Job Title</label>
-              <input type="text" id="updateJobTitle">
+              <label for="updateDisplayName">Display Name</label>
+              <input type="text" id="updateDisplayName" placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+              <label for="updateSamAccountName">SAM Account Name</label>
+              <input type="text" id="updateSamAccountName" placeholder="jdoe">
+            </div>
+
+            <div class="form-group">
+              <label for="updateUserPrincipalName">User Principal Name</label>
+              <input type="text" id="updateUserPrincipalName" placeholder="jdoe@company.com">
+            </div>
+
+            <div class="form-group">
+              <label for="updateManager">Manager</label>
+              <input type="text" id="updateManager" placeholder="Manager Display Name">
+            </div>
+
+            <div class="form-group">
+              <label for="updateTitle">Title</label>
+              <input type="text" id="updateTitle" placeholder="Job Title">
             </div>
 
             <div class="form-group">
               <label for="updateDepartment">Department</label>
-              <select id="updateDepartment">
-                <option value="">Select department</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Manufacturing">Manufacturing</option>
-                <option value="Quality">Quality</option>
-                <option value="Sales">Sales</option>
-                <option value="IT">IT</option>
-                <option value="HR">HR</option>
-                <option value="Finance">Finance</option>
-              </select>
+              <input type="text" id="updateDepartment" placeholder="Department Name">
             </div>
 
             <div class="form-group">
-              <label for="updateWorkLocation">Work Location</label>
-              <select id="updateWorkLocation">
-                <option value="">Select location</option>
-                <option value="Kansas City">Kansas City</option>
-                <option value="Remote">Remote</option>
-                <option value="Field">Field</option>
-              </select>
+              <label for="updateCompany">Company</label>
+              <input type="text" id="updateCompany" placeholder="Company Name">
             </div>
 
             <div class="form-group">
-              <label for="updatePhone">Mobile Phone</label>
-              <input type="tel" id="updatePhone" placeholder="(xxx) xxx-xxxx">
+              <label for="updateOffice">Office</label>
+              <input type="text" id="updateOffice" placeholder="Office Location">
             </div>
 
             <div class="form-group">
-              <label for="updateManagerName">Manager Name</label>
-              <input type="text" id="updateManagerName">
-            </div>
-          </div>
-
-          <div class="section-title" style="font-size: 1.2rem; margin: 30px 0 20px 0;">
-            <div class="section-icon">🔧</div>
-            System Access Updates
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="updateMSLicense">Microsoft License</label>
-              <select id="updateMSLicense">
-                <option value="">Select license type</option>
-                <option value="E1">O365 E1 - Outlook Web & Teams</option>
-                <option value="E3">O365 E3 - Full Office Suite</option>
-                <option value="E5">O365 E5 - Premium Suite</option>
-              </select>
+              <label for="updateOfficePhone">Office Phone</label>
+              <input type="tel" id="updateOfficePhone" placeholder="(xxx) xxx-xxxx">
             </div>
 
             <div class="form-group">
-              <label for="updateKineticAccess">Kinetic Access</label>
-              <select id="updateKineticAccess" onchange="toggleKineticFields('update')">
-                <option value="">Select an option</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-            </div>
-
-            <div class="form-group hidden-field" id="updateKineticVersionGroup">
-              <label for="updateKineticVersion">Kinetic Version</label>
-              <select id="updateKineticVersion">
-                <option value="">Select version</option>
-                <option value="full">Full Kinetic</option>
-                <option value="mes">MES</option>
-                <option value="both">Both</option>
-              </select>
+              <label for="updateMobilePhone">Mobile Phone</label>
+              <input type="tel" id="updateMobilePhone" placeholder="(xxx) xxx-xxxx">
             </div>
 
             <div class="form-group">
-              <label for="updateECxAccess">ECx Manager Access</label>
-              <select id="updateECxAccess" onchange="toggleECxFields('update')">
-                <option value="">Select an option</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
+              <label for="updateEmployeeID">Employee ID</label>
+              <input type="text" id="updateEmployeeID" placeholder="Employee ID Number">
             </div>
-          </div>
 
-          <div class="form-group hidden-field" id="updateECxPermissionsGroup">
-            <label>ECx Manager Permissions</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item">
-                <input type="checkbox" id="updateECR" value="ECR">
-                <label for="updateECR">Engineering Change Requests (ECR)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="updateECO" value="ECO">
-                <label for="updateECO">Engineering Change Orders (ECO)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="updateECN" value="ECN">
-                <label for="updateECN">Engineering Change Notifications (ECN)</label>
-              </div>
+            <div class="form-group">
+              <label for="updateEnabled">Account Enabled</label>
+              <select id="updateEnabled">
+                <option value="">Select status</option>
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+              </select>
             </div>
           </div>
 
@@ -904,7 +876,7 @@
           </div>
 
           <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
-            <button type="submit" class="button">Submit Update Request</button>
+            <button type="submit" class="button">Submit AD Update Request</button>
             <button type="button" class="button button-secondary" onclick="clearUpdateForm()">Clear Form</button>
           </div>
         </form>
