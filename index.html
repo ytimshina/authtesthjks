@@ -610,6 +610,96 @@
       }
     };
 
+    // ===========================
+    // MISSING FUNCTIONS - FIXED
+    // ===========================
+    
+    window.signOut = async function () {
+      try {
+        if (currentAccount) {
+          await msalInstance.logoutPopup({
+            account: currentAccount
+          });
+        }
+        currentAccount = null;
+        document.getElementById("output").innerText = "Signed out successfully";
+        
+        // Hide form sections when signing out
+        document.getElementById('form-type-section').style.display = 'none';
+        hideAllForms();
+        
+        // Reset form selections
+        document.getElementById('isVendor').value = '';
+        document.getElementById('formType').value = '';
+        document.getElementById('formTypeGroup').style.display = 'none';
+        
+      } catch (error) {
+        console.error('Sign out error:', error);
+        document.getElementById("output").innerText = `Sign out failed: ${error.message}`;
+      }
+    };
+
+    window.resetAllForms = function () {
+      // Reset all form elements
+      const forms = ['newEmployeeForm', 'terminatedEmployeeForm', 'transferForm'];
+      forms.forEach(formId => {
+        const form = document.getElementById(formId);
+        if (form) {
+          form.reset();
+        }
+      });
+      
+      // Reset form type selection
+      document.getElementById('isVendor').value = '';
+      document.getElementById('formType').value = '';
+      document.getElementById('formTypeGroup').style.display = 'none';
+      
+      // Hide all conditional fields
+      const hiddenFields = document.querySelectorAll('.form-group');
+      hiddenFields.forEach(field => {
+        if (field.id && (field.id.includes('VersionGroup') || field.id.includes('PermissionsGroup') || 
+            field.id.includes('ForwardingGroup') || field.id.includes('AliasGroup') || 
+            field.id.includes('ReasonGroup'))) {
+          field.classList.add('hidden-field');
+        }
+      });
+      
+      // Re-populate manager name if signed in
+      if (currentAccount) {
+        loadAllEmployees();
+      }
+      
+      // Clear any success/error messages
+      document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.split('<div')[0];
+    };
+
+    window.submitAnother = function () {
+      // Hide confirmation section
+      document.getElementById('confirmation-section').style.display = 'none';
+      
+      // Show form type selection
+      document.getElementById('form-type-section').style.display = 'block';
+      
+      // Reset all forms
+      resetAllForms();
+    };
+
+    window.goBack = function () {
+      // Hide vendor redirect
+      document.getElementById('vendor-redirect').style.display = 'none';
+      
+      // Show form type selection
+      document.getElementById('form-type-section').style.display = 'block';
+      
+      // Reset vendor selection
+      document.getElementById('isVendor').value = '';
+      document.getElementById('formTypeGroup').style.display = 'none';
+    };
+
+    // ===========================
+    // EXISTING FUNCTIONS
+    // ===========================
+
     async function loadAllEmployees() {
       try {
         const tokenResponse = await msalInstance.acquireTokenSilent({
@@ -772,11 +862,9 @@
         reasonGroup.classList.add('hidden-field');
       }
     }
-    
-    // ... Other functions like signOut, resetAllForms, etc. would go here ...
 
     // ===================================================================
-    // == NEW CODE: Event listener for the Terminated Employee Form ==
+    // == Event listener for the Terminated Employee Form ==
     // ===================================================================
     document.getElementById('terminatedEmployeeForm').addEventListener('submit', async function(event) {
         event.preventDefault(); // Prevent the default browser form submission action
@@ -844,8 +932,45 @@
         }
     });
 
+    // ===================================================================
+    // == Event listeners for New Employee and Transfer Forms ==
+    // ===================================================================
+    document.getElementById('newEmployeeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const selectedEmployee = document.getElementById('newModelEmployee').value ? 
+            JSON.parse(document.getElementById('newModelEmployee').value) : null;
+        
+        // Show confirmation
+        hideAllForms();
+        document.getElementById('confirmation-section').style.display = 'block';
+        document.getElementById('conf-form-type').textContent = 'New Employee';
+        document.getElementById('conf-manager').textContent = currentAccount.username;
+        document.getElementById('conf-details').innerHTML = `
+            <p><strong>New Employee:</strong> ${document.getElementById('newFirstName').value} ${document.getElementById('newLastName').value}</p>
+            <p><strong>Department:</strong> ${document.getElementById('newDepartment').value}</p>
+            <p><strong>Start Date:</strong> ${document.getElementById('newStartDate').value}</p>
+        `;
+    });
+
+    document.getElementById('transferForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const selectedEmployee = document.getElementById('transferEmployeeSelect').value ? 
+            JSON.parse(document.getElementById('transferEmployeeSelect').value) : null;
+        
+        // Show confirmation
+        hideAllForms();
+        document.getElementById('confirmation-section').style.display = 'block';
+        document.getElementById('conf-form-type').textContent = 'Transfer';
+        document.getElementById('conf-manager').textContent = currentAccount.username;
+        document.getElementById('conf-details').innerHTML = `
+            <p><strong>Transferred Employee:</strong> ${selectedEmployee ? selectedEmployee.displayName : 'Unknown'}</p>
+            <p><strong>Transfer Date:</strong> ${document.getElementById('transferDate').value}</p>
+            <p><strong>New Location:</strong> ${document.getElementById('transferWorkLocation').value}</p>
+        `;
+    });
+
   </script>
 </body>
 </html>
-
-
