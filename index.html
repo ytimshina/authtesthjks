@@ -755,9 +755,51 @@
               </select>
             </div>
 
+            <div class="form-group hidden-field" id="terminatedEmailAliasGroup">
+              <label for="terminatedEmailAliasRemoval">If the Terminated Employee has their email setup as a message alias, please indicate a date to remove</label>
+              <input type="date" id="terminatedEmailAliasRemoval">
+            </div>
+
+            <div class="form-group">
+              <label for="terminatedDeviceCollected">Device Collected? <span class="required">*</span></label>
+              <select id="terminatedDeviceCollected" required onchange="toggleDeviceReason()">
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
             <div class="form-group hidden-field" id="terminatedDeviceReasonGroup">
               <label for="terminatedDeviceReason">Why wasn't it collected? <span class="required">*</span></label>
               <input type="text" id="terminatedDeviceReason" placeholder="Explain why device was not collected">
+            </div>
+
+            <div class="form-group">
+              <label for="terminatedPhoneTransfer">Did the Terminated Employee have a company phone number they would like to transfer to a new carrier? <span class="required">*</span></label>
+              <select id="terminatedPhoneTransfer" required>
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              <small>Phone stipends are automatically removed when the Terminated Employee is removed from Paycor.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="terminatedKineticAccount">Does the Terminated Employee have a Kinetic account to disable? <span class="required">*</span></label>
+              <select id="terminatedKineticAccount" required>
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="terminatedECxAccess">Does this Employee have access to ECx Manager to remove?</label>
+              <select id="terminatedECxAccess">
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
             </div>
           </div>
 
