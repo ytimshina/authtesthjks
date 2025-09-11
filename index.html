@@ -644,6 +644,54 @@
               </select>
               <small>Full version is workstation client. MES is for production activities.</small>
             </div>
+
+            <div class="form-group">
+              <label for="newTeamsPhone">Microsoft Teams Phone Licensing Option</label>
+              <select id="newTeamsPhone">
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              <small>Choose this option if the new hire's job responsibilities will include receiving inbound external calls. Additional cost applies.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="newDIDNumber">Direct Inbound Dialing (DID) Number Option</label>
+              <select id="newDIDNumber">
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              <small>Microsoft Teams Phone licensing allows inbound calls to be transferred from Front Desk. Outbound calls require a DID number.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="newECxAccess">ECx Manager Access?</label>
+              <select id="newECxAccess" onchange="toggleECxFields('new')">
+                <option value="">Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              <small>ECx Manager is used for Engineering Change Management.</small>
+            </div>
+          </div>
+
+          <div class="form-group hidden-field" id="newECxPermissionsGroup">
+            <label>What can the Employee submit in ECx Manager?</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="newECR" value="ECR">
+                <label for="newECR">Engineering Change Requests (ECR)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="newECO" value="ECO">
+                <label for="newECO">Engineering Change Orders (ECO)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="newECN" value="ECN">
+                <label for="newECN">Engineering Change Notifications (ECN)</label>
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
