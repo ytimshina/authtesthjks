@@ -1269,7 +1269,7 @@
     }
 
     function hideAllForms() {
-      const forms = ['new-employee-form', 'terminated-employee-form', 'transfer-form', 'confirmation-section', 'vendor-redirect'];
+      const forms = ['new-employee-form', 'terminated-employee-form', 'transfer-form', 'vendor-redirect'];
       forms.forEach(formId => {
         const element = document.getElementById(formId);
         if (element) element.style.display = 'none';
@@ -1387,8 +1387,7 @@
           throw new Error('The selected employee does not have a valid email address.');
         }
 
-        const apiUrl = `http://localhost:8080/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
-
+        const apiUrl = `https://ab251b24a8b8.ngrok-free.app/api/Employee/disable?email=${encodeURIComponent(employeeEmail)}`;
 
         const response = await fetch(apiUrl, {
           method: 'POST',
@@ -1499,4 +1498,3 @@
   </script>
 </body>
 </html>
-
